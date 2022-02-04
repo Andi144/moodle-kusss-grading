@@ -67,12 +67,6 @@ class Grader:
         df = df[self.id_cols + self.assignment_cols + self.quiz_cols]
         self._print(f"size after filtering columns: {df.shape}")
         
-        # exclude all students without any submission (all NaN for exercises and exams)
-        len_before = len(df)
-        df.dropna(how="all", subset=self.assignment_cols + self.quiz_cols, inplace=True)
-        self._print(f"dropped {len_before - len(df)} entries due to all NaN (no participation in any assignment or "
-                    f"quiz); new size: {df.shape}")
-        
         # check if there are invalid matriculation ID numbers (e.g., due to having manually
         # added a student to Moodle who is not a registered KUSSS student); if there are, then
         # pandas could not convert them to np.int64 (should then be str, i.e., pandas object)
@@ -136,10 +130,16 @@ class Grader:
         which might be important to create and calculate additional data/columns that
         can then be conveniently used in the grading method ``self.create_grade_row``.
         
-        Per default, this method does nothing, i.e., the ``self.df`` pd.DataFrame is not
-        changed. Subclasses are encouraged to change this behavior, if required.
+        Per default, this method excludes/drops all students without any submission (i.e.,
+        all NaN for exercises and exams), which means that those students will not be
+        graded at the end (rather than getting a negative grade).
+        
+        Subclasses are encouraged to change this behavior, if required.
         """
-        self._print("no course-specific setup and adjustments; override if required")
+        len_before = len(self.df)
+        self.df.dropna(how="all", subset=self.assignment_cols + self.quiz_cols, inplace=True)
+        self._print(f"dropped {len_before - len(self.df)} entries due to all NaN (no participation in any "
+                    f"assignment or quiz); new size: {self.df.shape}")
     
     def create_grading_file(self, kusss_participants_files: Union[str, list[str]],
                             input_sep: str = ";", matr_id_col: str = "Matrikelnummer", study_id_col: str = "SKZ",
