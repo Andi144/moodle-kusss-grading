@@ -12,6 +12,7 @@ MAX_POINTS_Q1 = 10
 MAX_POINTS_Q2 = 10
 MAX_POINTS_ALL_Q = MAX_POINTS_Q1 + MAX_POINTS_Q2
 MAX_POINTS_QRETRY = MAX_POINTS_ALL_Q
+MAX_POINTS = MAX_POINTS_ALL_A + MAX_POINTS_ALL_Q
 
 THRESHOLD_INDIVIDUAL_A = 0.25
 THRESHOLD_ALL_A = 0.5
@@ -86,16 +87,7 @@ class Python1Grader(Grader):
         if row["q_total"] < THRESHOLD_ALL_Q * MAX_POINTS_ALL_Q:
             return pd.Series([5, "total quiz threshold not reached"])
         total = row["a_total"] + row["q_total"]
-        # regular grades, no need for special reason
-        if total >= 87.5:
-            return pd.Series([1, ""])
-        if total >= 75:
-            return pd.Series([2, ""])
-        if total >= 62.5:
-            return pd.Series([3, ""])
-        if total >= 50:
-            return pd.Series([4, ""])
-        raise AssertionError("negative grade cases should have already been handled")
+        return util.create_grade(total, MAX_POINTS)
 
 
 if __name__ == "__main__":

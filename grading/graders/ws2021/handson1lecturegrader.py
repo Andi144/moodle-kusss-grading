@@ -30,18 +30,7 @@ class HandsOn1LectureGrader(Grader):
         else:
             total = quizretry
         
-        # ensure that total is scaled to percent
-        total = 100 * total / MAX_POINTS
-        
-        if total >= 87.5:
-            return pd.Series([1, ""])
-        if total >= 75:
-            return pd.Series([2, ""])
-        if total >= 62.5:
-            return pd.Series([3, ""])
-        if total >= 50:
-            return pd.Series([4, ""])
-        return pd.Series([5, ""])
+        return util.create_grade(total, MAX_POINTS)
 
 
 if __name__ == "__main__":
