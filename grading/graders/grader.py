@@ -83,6 +83,7 @@ class Grader:
         # basic DataFrame is now finished at this point
         self.df = df
         # course-specific setup and adjustments (overridden in subclasses, if required)
+        self._print("applying course-specific setup and adjustments...")
         self._course_setup()
         self._print(f"size after applying course-specific setup and adjustments: {self.df.shape}")
     
@@ -91,7 +92,7 @@ class Grader:
             print(msg)
     
     def _to_en(self, df: pd.DataFrame):
-        self._print("translating columns to English")
+        self._print("translating columns to English...")
         # quick check if it is already English
         for c in df.columns:
             if c in MOODLE_DE_TO_EN_FULL.values():
@@ -139,8 +140,7 @@ class Grader:
         """
         len_before = len(self.df)
         self.df.dropna(how="all", subset=self.assignment_cols + self.quiz_cols, inplace=True)
-        self._print(f"dropped {len_before - len(self.df)} entries due to all NaN (no participation in any "
-                    f"assignment or quiz); new size: {self.df.shape}")
+        self._print(f"dropped {len_before - len(self.df)} entries due to all NaN (no participation at all)")
     
     def create_grading_file(self, kusss_participants_files: Union[str, list[str]],
                             input_sep: str = ";", matr_id_col: str = "Matrikelnummer", study_id_col: str = "SKZ",
