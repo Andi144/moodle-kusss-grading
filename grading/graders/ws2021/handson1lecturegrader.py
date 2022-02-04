@@ -23,10 +23,10 @@ class HandsOn1LectureGrader(Grader):
         quizretry = row[quizretry_cols[0]]
         
         if np.isnan(quizretry):
-            if np.isnan(quiz1) or quiz1 < THRESHOLD_INDIVIDUAL_Q * MAX_POINTS_Q2 or \
-                    np.isnan(quiz2) or quiz2 < THRESHOLD_INDIVIDUAL_Q * MAX_POINTS_Q2:
+            if quiz1 >= THRESHOLD_INDIVIDUAL_Q * MAX_POINTS_Q2 and quiz2 >= THRESHOLD_INDIVIDUAL_Q * MAX_POINTS_Q2:
+                total = quiz1 + quiz2
+            else:
                 return pd.Series([5, "individual quiz thresholds not reached"])
-            total = quiz1 + quiz2
         else:
             total = quizretry
         
