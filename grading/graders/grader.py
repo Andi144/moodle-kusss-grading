@@ -182,7 +182,15 @@ class Grader:
             kusss_participants_files = [kusss_participants_files]
         kdfs = [pd.read_csv(f, sep=input_sep, usecols=[matr_id_col, study_id_col], encoding=input_encoding)
                 for f in kusss_participants_files]
-        kdf = pd.concat(kdfs).drop_duplicates()
+        
+        # check duplicate entries (students who are found multiple times)
+        full_kdf = pd.concat(kdfs, ignore_index=True)
+        kdf = full_kdf.copy().drop_duplicates()
+        diff = full_kdf[full_kdf.duplicated()].drop_duplicates()
+        if len(diff) > 0:
+            warnings.warn(f"the following {len(diff)} duplicate entries were dropped (might be OK, e.g., if a "
+                          f"student was unregistered from one course but the export still contains an entry):\n{diff}")
+        
         kdf[matr_id_col] = kdf[matr_id_col].str.replace("k", "").astype(np.int64)
         # skips those that are not registered in this particular KUSSS course
         df = self.df.merge(kdf, left_on="ID number", right_on=matr_id_col)
