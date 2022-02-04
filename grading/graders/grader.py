@@ -29,7 +29,7 @@ MOODLE_DE_TO_EN_END = {
 class Grader:
     
     def __init__(self, moodle_file: str, ignore_assignment_words: Iterable = None, ignore_quiz_words: Iterable = None,
-                 verbose: bool = True):
+                 encoding: str = "utf8", verbose: bool = True):
         """
         Initializes a new Grader object.
         
@@ -41,6 +41,7 @@ class Grader:
         :param ignore_quiz_words: A collection of words that indicate to drop a quiz
             column if any word of this collection is contained within this column.
             Default: ["Dummy"], i.e., every quiz column is dropped which contains "Dummy"
+        :param encoding: The encoding to use when reading ``moodle_file``. Default: "utf8"
         :param verbose: Whether to print additional output information. Default: True
         """
         self.verbose = verbose
@@ -49,7 +50,7 @@ class Grader:
         if ignore_quiz_words is None:
             ignore_quiz_words = ["Dummy"]
         
-        df = pd.read_csv(moodle_file, na_values="-")
+        df = pd.read_csv(moodle_file, na_values="-", encoding=encoding)
         self._print(f"original size: {df.shape}")
         self.original_df = df.copy()
         df = self._to_en(df)
@@ -144,7 +145,8 @@ class Grader:
     def create_grading_file(self, kusss_participants_files: Union[str, list[str]],
                             input_sep: str = ";", matr_id_col: str = "Matrikelnummer", study_id_col: str = "SKZ",
                             output_sep: str = ";", header: bool = False, grading_file: str = None,
-                            cols_to_export: Sequence = None) -> pd.DataFrame:
+                            cols_to_export: Sequence = None, input_encoding: str = "ANSI",
+                            output_encoding: str = "utf8") -> pd.DataFrame:
         """
         Creates a grading CSV file that can be uploaded to KUSSS based on the CSV input
         file(s) that contain the participants/students of some course(s) (exported via KUSSS).
@@ -170,12 +172,16 @@ class Grader:
             Moreover, the default file name will be "grading.csv". Default: None
         :param cols_to_export: The columns to export to the grading CSV output file. Default:
             [``matr_id_col``, ``study_id_col``, "grade"]
+        :param input_encoding: The encoding to use when reading each file specified by
+            ``kusss_participants_files``. Default: "ANSI"
+        :param output_encoding: The encoding to use when writing ``grading_file``. Default: "utf8"
         :return: The final pd.DataFrame that contains all information including grades and
             the reasons for these grades.
         """
         if isinstance(kusss_participants_files, str):
             kusss_participants_files = [kusss_participants_files]
-        kdfs = [pd.read_csv(f, sep=input_sep, usecols=[matr_id_col, study_id_col]) for f in kusss_participants_files]
+        kdfs = [pd.read_csv(f, sep=input_sep, usecols=[matr_id_col, study_id_col], encoding=input_encoding)
+                for f in kusss_participants_files]
         kdf = pd.concat(kdfs).drop_duplicates()
         kdf[matr_id_col] = kdf[matr_id_col].str.replace("k", "").astype(np.int64)
         # skips those that are not registered in this particular KUSSS course
@@ -190,7 +196,7 @@ class Grader:
         # default format requirements for KUSSS grading import: "matriculationID;studyID;grade"
         if cols_to_export is None:
             cols_to_export = [matr_id_col, study_id_col, "grade"]
-        df[cols_to_export].to_csv(grading_file, sep=output_sep, index=False, header=header)
+        df[cols_to_export].to_csv(grading_file, sep=output_sep, index=False, header=header, encoding=output_encoding)
         self._print(f"KUSSS grading file ({len(df)} grades) written to: '{grading_file}'")
         
         return df
