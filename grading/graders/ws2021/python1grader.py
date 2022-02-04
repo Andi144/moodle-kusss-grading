@@ -76,7 +76,7 @@ class Python1Grader(Grader):
         # total points of exams (includes proper handling of normal exams and retry exam)
         self.df["q_total"] = self.df[self.quiz_cols].apply(create_quiz_total_row, axis=1)
     
-    def _create_grade_row(self, row):
+    def _create_grade_row(self, row) -> pd.Series:
         if not row["a1_passed"] or not row["a2_passed"] or not row["a3_passed"]:
             return pd.Series([5, "individual assignment thresholds not reached"])
         if not row["q_passed"]:

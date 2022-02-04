@@ -14,7 +14,7 @@ THRESHOLD_INDIVIDUAL_Q = 0.4
 
 class HandsOn1LectureGrader(Grader):
     
-    def _create_grade_row(self, row: pd.Series):
+    def _create_grade_row(self, row: pd.Series) -> pd.Series:
         quiz1_cols = [c for c in self.quiz_cols if "Exam 1 " in c]
         quiz2_cols = [c for c in self.quiz_cols if "Exam 2 " in c]
         quizretry_cols = [c for c in self.quiz_cols if "Retry Exam " in c]

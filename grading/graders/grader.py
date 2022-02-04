@@ -144,7 +144,7 @@ class Grader:
     def create_grading_file(self, kusss_participants_files: Union[str, list[str]],
                             input_sep: str = ";", matr_id_col: str = "Matrikelnummer", study_id_col: str = "SKZ",
                             output_sep: str = ";", header: bool = False, grading_file: str = None,
-                            cols_to_export: Sequence = None):
+                            cols_to_export: Sequence = None) -> pd.DataFrame:
         """
         Creates a grading CSV file that can be uploaded to KUSSS based on the CSV input
         file(s) that contain the participants/students of some course(s) (exported via KUSSS).
@@ -195,7 +195,7 @@ class Grader:
         
         return df
     
-    def _create_grade_row(self, row: pd.Series):
+    def _create_grade_row(self, row: pd.Series) -> pd.Series:
         """
         This method is called for each row in ``self.df`` and expects a pd.Series object
         of size 2 to be returned. The first entry of this series must be the grade (type:
