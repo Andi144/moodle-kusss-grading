@@ -86,6 +86,8 @@ class Grader:
         self._print("applying course-specific setup and adjustments...")
         self._course_setup()
         self._print(f"size after applying course-specific setup and adjustments: {self.df.shape}")
+        if len(self.df) == 0:
+            raise ValueError("no entries remain after dropping, cannot create Grader object")
     
     def _print(self, msg):
         if self.verbose:
