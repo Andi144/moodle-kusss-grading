@@ -133,7 +133,7 @@ class Grader:
         can then be conveniently used in the grading method ``self.create_grade_row``.
         
         Per default, this method excludes/drops all students without any submission (i.e.,
-        all NaN for exercises and exams), which means that those students will not be
+        all NaN for assignments and quizzes), which means that those students will not be
         graded at the end (rather than getting a negative grade).
         
         Subclasses are encouraged to change this behavior, if required.
