@@ -34,7 +34,7 @@ class Grader:
         Initializes a new Grader object.
         
         :param moodle_file: The path to the CSV input file that contains the grading
-            information, i.e., the points for assignments and quizes (exported via Moodle).
+            information, i.e., the points for assignments and quizzes (exported via Moodle).
         :param ignore_assignment_words: A collection of words that indicate to drop an
             assignment column if any word of this collection is contained within this column.
             Default: [], i.e., every assignment column is kept
