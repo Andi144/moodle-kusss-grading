@@ -19,6 +19,10 @@ THRESHOLD_ALL_A = 0.5
 THRESHOLD_INDIVIDUAL_Q = 0.4
 THRESHOLD_INDIVIDUAL_QRETRY = 0.5
 THRESHOLD_ALL_Q = 0.5
+# number of decimal places to round to (to remedy floating point arithmetic
+# imprecision, e.g., if the sum of all assignments happened to be something
+# like x=39.99999999, then x < 40 would return True, which we don't want)
+DECIMALS = 5
 
 
 class Python1Grader(Grader):
@@ -44,10 +48,10 @@ class Python1Grader(Grader):
         
         # passed-flag for each assignment
         for cols, name, max_points, threshold in assignments:
-            self.df[f"{name}_passed"] = self.df[cols].sum(axis=1) >= threshold * max_points
+            self.df[f"{name}_passed"] = self.df[cols].sum(axis=1).round(DECIMALS) >= threshold * max_points
         
         # total points of all assignments (all exercises)
-        self.df["a_total"] = self.df[self.assignment_cols].sum(axis=1)
+        self.df["a_total"] = self.df[self.assignment_cols].sum(axis=1).round(DECIMALS)
     
     def _quiz_setup(self):
         quiz1_cols = [c for c in self.quiz_cols if "Exam 1 " in c]
@@ -71,7 +75,7 @@ class Python1Grader(Grader):
         def create_quiz_total_row(row):
             # total points: q1 + q2 OR qretry if qretry is not NaN
             if np.isnan(row[quizretry_col]):
-                return row[[quiz1_col, quiz2_col]].sum()
+                return row[[quiz1_col, quiz2_col]].sum().round(DECIMALS)
             return row[quizretry_col]
         
         # total points of exams (includes proper handling of normal exams and retry exam)
