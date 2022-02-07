@@ -13,7 +13,6 @@ class HandsOn1LectureGraderTest(BaseGraderTest):
         return HandsOn1LectureGrader
     
     def test_create_grading_file_q1q2_threshold_negative(self):
-        # columns: q1, q2, qretry, expected grade
         self.assert_equal_grades(pd.DataFrame([
             # q1
             [0, 100, "-", 5],
@@ -26,7 +25,6 @@ class HandsOn1LectureGraderTest(BaseGraderTest):
         ]))
     
     def test_create_grading_file_q1q2_total_negative(self):
-        # columns: q1, q2, qretry, expected grade
         self.assert_equal_grades(pd.DataFrame([
             [40, 59, "-", 5],
             [49, 50, "-", 5],
@@ -35,7 +33,6 @@ class HandsOn1LectureGraderTest(BaseGraderTest):
         ]))
     
     def test_create_grading_file_q1q2_total_positive(self):
-        # columns: q1, q2, qretry, expected grade
         self.assert_equal_grades(pd.DataFrame([
             [40, 60, "-", 4],
             [60, 40, "-", 4],
@@ -44,7 +41,6 @@ class HandsOn1LectureGraderTest(BaseGraderTest):
         ]))
     
     def test_create_grading_file_qretry_negative(self):
-        # columns: q1, q2, qretry, expected grade
         self.assert_equal_grades(pd.DataFrame([
             # should be independent of q1 + q2
             ["-", "-", 99, 5],
@@ -56,7 +52,6 @@ class HandsOn1LectureGraderTest(BaseGraderTest):
         ]))
     
     def test_create_grading_file_qretry_positive(self):
-        # columns: q1, q2, qretry, expected grade
         self.assert_equal_grades(pd.DataFrame([
             # should be independent of q1 + q2
             ["-", "-", 100, 4],
