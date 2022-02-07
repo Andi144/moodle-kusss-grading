@@ -30,7 +30,7 @@ class BaseGraderTest(unittest.TestCase):
         grades as specified by the given ``points`` pd.DataFrame. This points dataframe must
         have all required columns needed to calculate the grade with the concrete grader and
         in addition, the last column must contain the expected grade. The column names must be
-        provided by the method ``get_columns``.
+        provided by the method ``get_points_columns``.
         
         :param points: The pd.DataFrame containing the points and, in the last column, the
             expected grade that the respective points should result in.
@@ -50,7 +50,7 @@ class BaseGraderTest(unittest.TestCase):
         if grader_create_grading_file_kwargs is None:
             grader_create_grading_file_kwargs = dict()
         
-        df = BaseGraderTest.create_moodle_file_with_points(points, self.get_columns(), moodle_file)
+        df = BaseGraderTest.create_moodle_file_with_points(points, self.get_points_columns(), moodle_file)
         BaseGraderTest.create_matching_kusss_participants_file(df, kusss_participants_file)
         
         grader = self.get_grader_class()(moodle_file, verbose=False, **grader_init_kwargs)
@@ -62,7 +62,7 @@ class BaseGraderTest(unittest.TestCase):
         for i, (expected_grade, actual_grade) in enumerate(zip(points.iloc[:, -1], gdf["grade"])):
             self.assertEqual(expected_grade, actual_grade, msg=f"\n{gdf.iloc[i]}")
     
-    def get_columns(self) -> list[str]:
+    def get_points_columns(self) -> list[str]:
         """
         Returns the list of column names of the ``points`` pd.DataFrame which is passed
         to the ``assert_equal_grades`` method (number of columns must be identical).

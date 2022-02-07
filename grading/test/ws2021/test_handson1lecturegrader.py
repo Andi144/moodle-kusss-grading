@@ -6,7 +6,7 @@ from test.ws2021.basegradertest import BaseGraderTest
 
 class HandsOn1LectureGraderTest(BaseGraderTest):
     
-    def get_columns(self) -> list[str]:
+    def get_points_columns(self) -> list[str]:
         return ["Quiz: Exam 1 (Real)", "Quiz: Exam 2 (Real)", "Quiz: Retry Exam (Real)", "expected_grade"]
     
     def get_grader_class(self) -> type:
