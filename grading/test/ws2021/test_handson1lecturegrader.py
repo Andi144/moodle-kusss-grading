@@ -1,28 +1,16 @@
-import os
-import unittest
-
 import pandas as pd
 
 from graders.ws2021.handson1lecturegrader import HandsOn1LectureGrader
-
-MOODLE_FILE = "moodle_file.csv"
-KUSSS_PARTICIPANTS_FILE = "kusss_participants_file.csv"
-GRADING_FILE = "grading.csv"
+from test.ws2021.basegradertest import BaseGraderTest
 
 
-class HandsOn1LectureGraderTest(unittest.TestCase):
+class HandsOn1LectureGraderTest(BaseGraderTest):
     
-    def tearDown(self):
-        # fail silently if the files could not be found
-        def silent_remove(file):
-            try:
-                os.remove(file)
-            except FileNotFoundError:
-                pass
-        
-        silent_remove(MOODLE_FILE)
-        silent_remove(KUSSS_PARTICIPANTS_FILE)
-        silent_remove(GRADING_FILE)
+    def get_columns(self) -> list[str]:
+        return ["Quiz: Exam 1 (Real)", "Quiz: Exam 2 (Real)", "Quiz: Retry Exam (Real)", "expected_grade"]
+    
+    def get_grader_class(self) -> type:
+        return HandsOn1LectureGrader
     
     def test_create_grading_file_q1q2_threshold_negative(self):
         # columns: q1, q2, qretry, expected grade
@@ -86,32 +74,3 @@ class HandsOn1LectureGraderTest(unittest.TestCase):
             [100, 39, 200, 1],
             [100, 100, 200, 1],
         ]))
-    
-    def assert_equal_grades(self, points: pd.DataFrame, moodle_file: str = MOODLE_FILE,
-                            kusss_participants_file: str = KUSSS_PARTICIPANTS_FILE, grading_file: str = GRADING_FILE):
-        df = HandsOn1LectureGraderTest.create_moodle_file_with_points(points, moodle_file)
-        HandsOn1LectureGraderTest.create_matching_kusss_participants_file(df, kusss_participants_file)
-        
-        grader = HandsOn1LectureGrader(moodle_file, verbose=False)
-        gdf = grader.create_grading_file(kusss_participants_file, grading_file=grading_file)
-        # use more detailed assertion checking instead of faster but less detailed global assertion
-        # self.assertTrue(gdf["grade"].equals(points["expected_grade"]))
-        for i, (expected_grade, actual_grade) in enumerate(zip(points.iloc[:, 3], gdf["grade"])):
-            self.assertEqual(expected_grade, actual_grade, msg=f"\n{gdf.iloc[i]}")
-    
-    @staticmethod
-    def create_moodle_file_with_points(points: pd.DataFrame, moodle_file: str):
-        df = points.copy()
-        df.columns = ["Quiz: Exam 1 (Real)", "Quiz: Exam 2 (Real)", "Quiz: Retry Exam (Real)", "expected_grade"]
-        df["First name"] = "A"
-        df["Surname"] = "B"
-        df["ID number"] = range(len(points))
-        df.to_csv(moodle_file, index=False)
-        return df
-    
-    @staticmethod
-    def create_matching_kusss_participants_file(moodle_df: pd.DataFrame, kusss_participants_file: str):
-        df = pd.DataFrame()
-        df["Matrikelnummer"] = moodle_df["ID number"].apply(lambda x: f"k{x}")
-        df["SKZ"] = 123
-        df.to_csv(kusss_participants_file, sep=";", index=False)
