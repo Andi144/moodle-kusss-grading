@@ -8,7 +8,7 @@ KUSSS_PARTICIPANTS_FILE = "kusss_participants_file.csv"
 GRADING_FILE = "grading.csv"
 
 
-class BaseGraderTest(unittest.TestCase):
+class AbstractGraderTest(unittest.TestCase):
     
     def tearDown(self):
         # fail silently if the files could not be found
@@ -56,8 +56,8 @@ class BaseGraderTest(unittest.TestCase):
         if len(points_columns) != len(points.columns):
             raise ValueError("number of columns of 'points' must be identical to the number of columns "
                              "returned by the method 'get_points_columns'")
-        df = BaseGraderTest.create_moodle_file_with_points(points, points_columns, moodle_file)
-        BaseGraderTest.create_matching_kusss_participants_file(df, kusss_participants_file)
+        df = AbstractGraderTest.create_moodle_file_with_points(points, points_columns, moodle_file)
+        AbstractGraderTest.create_matching_kusss_participants_file(df, kusss_participants_file)
         
         grader = self.get_grader_class()(moodle_file, verbose=False, **grader_init_kwargs)
         gdf = grader.create_grading_file(kusss_participants_file, grading_file=grading_file,

@@ -1,10 +1,10 @@
 import pandas as pd
 
 from graders.ws2021.handson1lecturegrader import HandsOn1LectureGrader
-from test.ws2021.basegradertest import BaseGraderTest
+from test.ws2021.abstractgradertest import AbstractGraderTest
 
 
-class HandsOn1LectureGraderTest(BaseGraderTest):
+class HandsOn1LectureGraderTest(AbstractGraderTest):
     
     def get_points_columns(self) -> list[str]:
         return ["Quiz: Exam 1 (Real)", "Quiz: Exam 2 (Real)", "Quiz: Retry Exam (Real)", "expected_grade"]
