@@ -142,7 +142,8 @@ class Grader:
         """
         len_before = len(self.df)
         self.df.dropna(how="all", subset=self.assignment_cols + self.quiz_cols, inplace=True)
-        self._print(f"dropped {len_before - len(self.df)} entries due to all NaN (no participation at all)")
+        if len_before != len(self.df):
+            self._print(f"dropped {len_before - len(self.df)} entries due to all NaN (no participation at all)")
     
     def create_grading_file(self, kusss_participants_files: Union[str, list[str]],
                             input_sep: str = ";", matr_id_col: str = "Matrikelnummer", study_id_col: str = "SKZ",
