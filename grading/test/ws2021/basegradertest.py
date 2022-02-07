@@ -52,7 +52,11 @@ class BaseGraderTest(unittest.TestCase):
         if grader_create_grading_file_kwargs is None:
             grader_create_grading_file_kwargs = dict()
         
-        df = BaseGraderTest.create_moodle_file_with_points(points, self.get_points_columns(), moodle_file)
+        points_columns = self.get_points_columns()
+        if len(points_columns) != len(points.columns):
+            raise ValueError("number of columns of 'points' must be identical to the number of columns "
+                             "returned by the method 'get_points_columns'")
+        df = BaseGraderTest.create_moodle_file_with_points(points, points_columns, moodle_file)
         BaseGraderTest.create_matching_kusss_participants_file(df, kusss_participants_file)
         
         grader = self.get_grader_class()(moodle_file, verbose=False, **grader_init_kwargs)
