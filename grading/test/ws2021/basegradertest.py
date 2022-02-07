@@ -23,7 +23,8 @@ class BaseGraderTest(unittest.TestCase):
         silent_remove(GRADING_FILE)
     
     def assert_equal_grades(self, points: pd.DataFrame, moodle_file: str = MOODLE_FILE,
-                            kusss_participants_file: str = KUSSS_PARTICIPANTS_FILE, grading_file: str = GRADING_FILE):
+                            kusss_participants_file: str = KUSSS_PARTICIPANTS_FILE, grading_file: str = GRADING_FILE,
+                            grader_init_kwargs: dict = None, grader_create_grading_file_kwargs: dict = None):
         """
         Checks whether the concrete grader (see method `get_grader_class`) results in the same
         grades as specified by the given ``points`` pd.DataFrame. This points dataframe must
@@ -39,12 +40,23 @@ class BaseGraderTest(unittest.TestCase):
             different file is specified, the file will be deleted after each test case.
         :param grading_file: The temporary output grading CSV file. Unless a different file is
             specified, the file will be deleted after each test case.
+        :param grader_init_kwargs: Additional keyword arguments that are passed to the ``__init__``
+            method when instantiating the concrete grader class (as given by `get_grader_class`).
+        :param grader_create_grading_file_kwargs: Additional keyword arguments that are passed to
+            the ``create_grading_file`` method of the instantiated grader.
         """
+        if grader_init_kwargs is None:
+            grader_init_kwargs = dict()
+        if grader_create_grading_file_kwargs is None:
+            grader_create_grading_file_kwargs = dict()
+        
         df = BaseGraderTest.create_moodle_file_with_points(points, self.get_columns(), moodle_file)
         BaseGraderTest.create_matching_kusss_participants_file(df, kusss_participants_file)
         
-        grader = self.get_grader_class()(moodle_file, verbose=False)
-        gdf = grader.create_grading_file(kusss_participants_file, grading_file=grading_file)
+        grader = self.get_grader_class()(moodle_file, verbose=False, **grader_init_kwargs)
+        gdf = grader.create_grading_file(kusss_participants_file, grading_file=grading_file,
+                                         **grader_create_grading_file_kwargs)
+        
         # use more detailed assertion checking instead of faster but less detailed global assertion
         # self.assertTrue(gdf["grade"].equals(points["expected_grade"]))
         for i, (expected_grade, actual_grade) in enumerate(zip(points.iloc[:, -1], gdf["grade"])):
