@@ -33,7 +33,9 @@ class BaseGraderTest(unittest.TestCase):
         provided by the method ``get_points_columns``.
         
         :param points: The pd.DataFrame containing the points and, in the last column, the
-            expected grade that the respective points should result in.
+            expected grade that the respective points should result in. The number of columns
+            of this dataframe must be identical to the number of columns returned by the method
+            ``get_points_columns``.
         :param moodle_file: The temporary moodle CSV file. Unless a different file is specified,
             the file will be deleted after each test case.
         :param kusss_participants_file: The temporary KUSSS participants CSV file. Unless a
