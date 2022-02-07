@@ -28,23 +28,32 @@ MOODLE_DE_TO_EN_END = {
 
 class Grader:
     
-    def __init__(self, moodle_file: str, ignore_assignment_words: Iterable = None, ignore_quiz_words: Iterable = None,
-                 encoding: str = "utf8", verbose: bool = True):
+    # TODO: add "df" parameter which is XOR with moodle_file (simplifies testing)
+    def __init__(self, moodle_file: str, encoding: str = "utf8", cols_to_keep: Iterable = None,
+                 ignore_assignment_words: Iterable = None, ignore_quiz_words: Iterable = None,
+                 verbose: bool = True):
         """
         Initializes a new Grader object.
         
         :param moodle_file: The path to the CSV input file that contains the grading
             information, i.e., the points for assignments and quizzes (exported via Moodle).
+        :param encoding: The encoding to use when reading ``moodle_file``. Default: "utf8"
+        :param cols_to_keep: A collection of columns to keep in addition to the three mandatory
+            ID columns ("First name", "Surname", "ID number") and in addition to the assignment
+            and quiz columns (see `ignore_assignment_words` and `ignore_quiz_words` for more
+            control over these two kinds of columns). Default: None = [], i.e., no column is
+            kept in addition to the three ID columns and the assignment and quiz columns
         :param ignore_assignment_words: A collection of words that indicate to drop an
             assignment column if any word of this collection is contained within this column.
-            Default: [], i.e., every assignment column is kept
+            Default: None = [], i.e., every assignment column is kept
         :param ignore_quiz_words: A collection of words that indicate to drop a quiz
             column if any word of this collection is contained within this column.
-            Default: ["Dummy"], i.e., every quiz column is dropped which contains "Dummy"
-        :param encoding: The encoding to use when reading ``moodle_file``. Default: "utf8"
+            Default: None = ["Dummy"], i.e., every quiz column is dropped which contains "Dummy"
         :param verbose: Whether to print additional output information. Default: True
         """
         self.verbose = verbose
+        if cols_to_keep is None:
+            cols_to_keep = []
         if ignore_assignment_words is None:
             ignore_assignment_words = []
         if ignore_quiz_words is None:
@@ -54,9 +63,6 @@ class Grader:
         self._print(f"original size: {df.shape}")
         self.original_df = df.copy()
         df = self._to_en(df)
-        # TODO: parameterize
-        cols_to_drop = [c for c in df.columns if c.startswith("Course total")] + ["Last downloaded from this course"]
-        df.drop(columns=cols_to_drop, inplace=True)
         
         # TODO: parameterize
         self.id_cols = ["First name", "Surname", "ID number"]
@@ -64,8 +70,7 @@ class Grader:
                                 all([w not in c for w in ignore_assignment_words])]
         self.quiz_cols = [c for c in df.columns if c.startswith("Quiz:") and
                           all([w not in c for w in ignore_quiz_words])]
-        # order columns (not necessary but nicer (debugging) output)
-        df = df[self.id_cols + self.assignment_cols + self.quiz_cols]
+        df = df[self.id_cols + self.assignment_cols + self.quiz_cols + cols_to_keep]
         self._print(f"size after filtering columns: {df.shape}")
         
         # check if there are invalid matriculation ID numbers (e.g., due to having manually
