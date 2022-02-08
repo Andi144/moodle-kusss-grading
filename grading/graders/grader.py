@@ -153,6 +153,7 @@ class Grader:
     def create_grading_file(self, kusss_participants_files: Union[str, list[str]],
                             input_sep: str = ";", matr_id_col: str = "Matrikelnummer", study_id_col: str = "SKZ",
                             output_sep: str = ";", header: bool = False, grading_file: str = None,
+                            grade_col: str = "grade", grade_reason_col: str = "grade_reason",
                             cols_to_export: Sequence = None, input_encoding: str = "ANSI",
                             output_encoding: str = "utf8") -> pd.DataFrame:
         """
@@ -178,8 +179,12 @@ class Grader:
             will be stored. Otherwise, the grading file will be stored at the same location
             as the input file (or as the first input file if multiple files were specified).
             Moreover, the default file name will be "grading.csv". Default: None
+        :param grade_col: The column name of the grading CSV output file that contains the
+            grade (np.int64). Default: "grade"
+        :param grade_reason_col: The column name of the grading CSV output file that contains
+            the reason for the grade (str). Default: "grade_reason"
         :param cols_to_export: The columns to export to the grading CSV output file. Default:
-            [``matr_id_col``, ``study_id_col``, "grade"]
+            [``matr_id_col``, ``study_id_col``, ``grade_col``, ``grade_reason_col``]
         :param input_encoding: The encoding to use when reading each file specified by
             ``kusss_participants_files``. Default: "ANSI"
         :param output_encoding: The encoding to use when writing ``grading_file``. Default: "utf8"
@@ -205,13 +210,15 @@ class Grader:
         self._print(f"size after merging with KUSSS participants {kdf.shape}: {df.shape}")
         
         # apply the actual grading logic (implemented in concrete course subclasses)
-        df[["grade", "grade_reason"]] = df.apply(self._create_grade_row, axis=1)
+        df[[grade_col, grade_reason_col]] = df.apply(self._create_grade_row, axis=1)
         
         if grading_file is None:
             grading_file = os.path.join(os.path.split(kusss_participants_files[0])[0], "grading.csv")
-        # default format requirements for KUSSS grading import: "matriculationID;studyID;grade"
+        # default format requirements for KUSSS grading import: "matriculationID;studyID;grade;externalInfo"
+        # in the official KUSSS documentation, only "matriculationID;studyID;grade" is actually mentioned,
+        # but the last column "externalInfo" is also automatically recognized without an explicit header
         if cols_to_export is None:
-            cols_to_export = [matr_id_col, study_id_col, "grade"]
+            cols_to_export = [matr_id_col, study_id_col, grade_col, grade_reason_col]
         export_df = df[cols_to_export].copy()
         # KUSSS requires the matriculation ID to be exactly 8 characters wide, so add leading zeros
         export_df[matr_id_col] = export_df[matr_id_col].apply(lambda x: f"{x:08d}")
