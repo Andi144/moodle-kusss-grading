@@ -16,11 +16,11 @@ class HandsOn1LectureGrader(Grader):
     def _create_grade_row(self, row: pd.Series) -> pd.Series:
         quiz1_cols = [c for c in self.quiz_cols if "Exam 1 " in c]
         quiz2_cols = [c for c in self.quiz_cols if "Exam 2 " in c]
-        quizretry_cols = [c for c in self.quiz_cols if "Retry Exam " in c]
-        assert len(quiz1_cols) == 1 and len(quiz2_cols) == 1 and len(quizretry_cols) == 1
+        quizretry_cols = [c for c in self.quiz_cols if "Retry Exam " in c]  # optional, could be missing
+        assert len(quiz1_cols) == 1 and len(quiz2_cols) == 1 and len(quizretry_cols) <= 1
         quiz1 = row[quiz1_cols[0]]
         quiz2 = row[quiz2_cols[0]]
-        quizretry = row[quizretry_cols[0]]
+        quizretry = row[quizretry_cols[0]] if quizretry_cols else np.nan
         
         if np.isnan(quizretry):
             if quiz1 >= THRESHOLD_INDIVIDUAL_Q * MAX_POINTS_Q2 and quiz2 >= THRESHOLD_INDIVIDUAL_Q * MAX_POINTS_Q2:
