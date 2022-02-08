@@ -30,7 +30,7 @@ def create_grade(points, max_points, grading: dict = None) -> pd.Series:
     a pd.Series object with two entries, where the first entry is the grade and the
     second is the reason for this grade. The reason is always the empty string for all
     grades specified in ``grading``, i.e., there is no particular reason, and for the
-    grade 5, the reason is "global threshold not reached".
+    grade 5, the reason is "total threshold not reached".
     
     :param points: The absolute points that were achieved.
     :param max_points: The absolute maximum points that can be achieved.
@@ -58,7 +58,7 @@ def create_grade(points, max_points, grading: dict = None) -> pd.Series:
         return pd.Series([3, ""])
     if total >= grading[4]:
         return pd.Series([4, ""])
-    return pd.Series([5, f"global threshold not reached"])
+    return pd.Series([5, f"total threshold not reached"])
 
 
 def get_grading_args():
