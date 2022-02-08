@@ -26,7 +26,7 @@ class HandsOn1LectureGrader(Grader):
             if quiz1 >= THRESHOLD_INDIVIDUAL_Q * MAX_POINTS_Q2 and quiz2 >= THRESHOLD_INDIVIDUAL_Q * MAX_POINTS_Q2:
                 total = quiz1 + quiz2
             else:
-                return pd.Series([5, "individual quiz thresholds not reached"])
+                return pd.Series([5, "individual exam thresholds not reached"])
         else:
             total = quizretry
         

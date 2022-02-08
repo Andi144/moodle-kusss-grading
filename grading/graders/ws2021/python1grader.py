@@ -85,11 +85,11 @@ class Python1Grader(Grader):
         if not row["a1_passed"] or not row["a2_passed"] or not row["a3_passed"]:
             return pd.Series([5, "individual assignment thresholds not reached"])
         if not row["q_passed"]:
-            return pd.Series([5, "individual quiz thresholds not reached"])
+            return pd.Series([5, "individual exam thresholds not reached"])
         if row["a_total"] < THRESHOLD_ALL_A * MAX_POINTS_ALL_A:
             return pd.Series([5, "total assignment threshold not reached"])
         if row["q_total"] < THRESHOLD_ALL_Q * MAX_POINTS_ALL_Q:
-            return pd.Series([5, "total quiz threshold not reached"])
+            return pd.Series([5, "total exam threshold not reached"])
         total = row["a_total"] + row["q_total"]
         return util.create_grade(total, MAX_POINTS)
 
