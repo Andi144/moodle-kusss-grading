@@ -212,7 +212,10 @@ class Grader:
         # default format requirements for KUSSS grading import: "matriculationID;studyID;grade"
         if cols_to_export is None:
             cols_to_export = [matr_id_col, study_id_col, "grade"]
-        df[cols_to_export].to_csv(grading_file, sep=output_sep, index=False, header=header, encoding=output_encoding)
+        export_df = df[cols_to_export].copy()
+        # KUSSS requires the matriculation ID to be exactly 8 characters wide, so add leading zeros
+        export_df[matr_id_col] = export_df[matr_id_col].apply(lambda x: f"{x:08d}")
+        export_df.to_csv(grading_file, sep=output_sep, index=False, header=header, encoding=output_encoding)
         self._print(f"KUSSS grading file ({len(df)} grades) written to: '{grading_file}'")
         
         return df
