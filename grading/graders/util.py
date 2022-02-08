@@ -43,6 +43,10 @@ def create_grade(points, max_points, grading: dict = None) -> pd.Series:
     :return: A pd.Series object where the first entry is the grade (type: np.int64) and
         the second entry the reason (type: str, i.e., pandas object) for this grade.
     """
+    # TODO: better parameterization: "grading" should be an arbitrarily sized sequence
+    #  where each entry contains: [0] the grade, [1] the lower threshold, [2] the reason;
+    #  this sequence is then simply checked sequentially (possibly with a parameterized
+    #  default value if none of "grading" match, or, raising some exception)
     if grading is None:
         grading = {1: 0.875, 2: 0.75, 3: 0.625, 4: 0.50}
     total = points / max_points
