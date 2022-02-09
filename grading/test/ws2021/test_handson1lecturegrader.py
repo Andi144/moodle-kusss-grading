@@ -3,11 +3,10 @@ import pandas as pd
 from graders.ws2021.handson1lecturegrader import HandsOn1LectureGrader
 from test.ws2021.abstractgradertest import AbstractGraderTest
 
+COLUMNS = ["Quiz: Exam 1 (Real)", "Quiz: Exam 2 (Real)", "Quiz: Retry Exam (Real)", "expected_grade"]
+
 
 class HandsOn1LectureGraderTest(AbstractGraderTest):
-    
-    def get_points_columns(self) -> list[str]:
-        return ["Quiz: Exam 1 (Real)", "Quiz: Exam 2 (Real)", "Quiz: Retry Exam (Real)", "expected_grade"]
     
     def get_grader_class(self) -> type:
         return HandsOn1LectureGrader
@@ -22,7 +21,7 @@ class HandsOn1LectureGraderTest(AbstractGraderTest):
             [100, 0, "-", 5],
             [100, 39, "-", 5],
             [100, "-", "-", 5],
-        ]))
+        ], columns=COLUMNS))
     
     def test_create_grading_file_q1q2_total_negative(self):
         self.assert_equal_grades(pd.DataFrame([
@@ -30,7 +29,7 @@ class HandsOn1LectureGraderTest(AbstractGraderTest):
             [49, 50, "-", 5],
             [59, 40, "-", 5],
             [50, 49, "-", 5],
-        ]))
+        ], columns=COLUMNS))
     
     def test_create_grading_file_q1q2_total_positive(self):
         self.assert_equal_grades(pd.DataFrame([
@@ -38,7 +37,7 @@ class HandsOn1LectureGraderTest(AbstractGraderTest):
             [60, 40, "-", 4],
             [50, 50, "-", 4],
             [100, 100, "-", 1],
-        ]))
+        ], columns=COLUMNS))
     
     def test_create_grading_file_qretry_negative(self):
         self.assert_equal_grades(pd.DataFrame([
@@ -49,7 +48,7 @@ class HandsOn1LectureGraderTest(AbstractGraderTest):
             [39, 100, 99, 5],
             [100, 39, 99, 5],
             [100, 100, 99, 5],
-        ]))
+        ], columns=COLUMNS))
     
     def test_create_grading_file_qretry_positive(self):
         self.assert_equal_grades(pd.DataFrame([
@@ -68,4 +67,4 @@ class HandsOn1LectureGraderTest(AbstractGraderTest):
             [39, 100, 200, 1],
             [100, 39, 200, 1],
             [100, 100, 200, 1],
-        ]))
+        ], columns=COLUMNS))

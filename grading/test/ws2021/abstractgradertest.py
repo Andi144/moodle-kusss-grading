@@ -29,13 +29,12 @@ class AbstractGraderTest(unittest.TestCase):
         Checks whether the concrete grader (see method `get_grader_class`) results in the same
         grades as specified by the given ``points`` pd.DataFrame. This points dataframe must
         have all required columns needed to calculate the grade with the concrete grader and
-        in addition, the last column must contain the expected grade. The column names must be
-        provided by the method ``get_points_columns``.
+        in addition, the last column must contain the expected grade. The column names must
+        match what the real columns from exported data would look like (except for the last
+        column, the expected grade column, which can have an arbitrary name).
         
         :param points: The pd.DataFrame containing the points and, in the last column, the
-            expected grade that the respective points should result in. The number of columns
-            of this dataframe must be identical to the number of columns returned by the method
-            ``get_points_columns``.
+            expected grade that the respective points should result in.
         :param moodle_file: The temporary moodle CSV file. Unless a different file is specified,
             the file will be deleted after each test case.
         :param kusss_participants_file: The temporary KUSSS participants CSV file. Unless a
@@ -52,11 +51,7 @@ class AbstractGraderTest(unittest.TestCase):
         if grader_create_grading_file_kwargs is None:
             grader_create_grading_file_kwargs = dict()
         
-        points_columns = self.get_points_columns()
-        if len(points_columns) != len(points.columns):
-            raise ValueError("number of columns of 'points' must be identical to the number of columns "
-                             "returned by the method 'get_points_columns'")
-        df = AbstractGraderTest.create_moodle_file_with_points(points, points_columns, moodle_file)
+        df = AbstractGraderTest.create_moodle_file_with_points(points, moodle_file)
         AbstractGraderTest.create_matching_kusss_participants_file(df, kusss_participants_file)
         
         grader = self.get_grader_class()(moodle_file, verbose=False, **grader_init_kwargs)
@@ -68,14 +63,6 @@ class AbstractGraderTest(unittest.TestCase):
         for i, (expected_grade, actual_grade) in enumerate(zip(points.iloc[:, -1], gdf["grade"])):
             self.assertEqual(expected_grade, actual_grade, msg=f"\n{gdf.iloc[i]}")
     
-    def get_points_columns(self) -> list[str]:
-        """
-        Returns the list of column names of the ``points`` pd.DataFrame which is passed
-        to the ``assert_equal_grades`` method (number of columns must be identical).
-        """
-        raise NotImplementedError("test subclass must return the columns of the 'points' pd.DataFrame which is "
-                                  "passed to the 'assert_equal_grades' method")
-    
     def get_grader_class(self) -> type:
         """
         Returns the class/type of the concrete grader which should be instantiated in
@@ -85,9 +72,8 @@ class AbstractGraderTest(unittest.TestCase):
                                   "instantiated in each test method")
     
     @staticmethod
-    def create_moodle_file_with_points(points: pd.DataFrame, columns: list[str], moodle_file: str) -> pd.DataFrame:
+    def create_moodle_file_with_points(points: pd.DataFrame, moodle_file: str) -> pd.DataFrame:
         df = points.copy()
-        df.columns = columns
         df["First name"] = "A"
         df["Surname"] = "B"
         df["ID number"] = range(len(points))
