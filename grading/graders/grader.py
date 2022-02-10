@@ -207,6 +207,8 @@ class Grader:
         kdf[matr_id_col] = kdf[matr_id_col].str.replace("k", "").astype(np.int64)
         # skips those that are not registered in this particular KUSSS course
         df = self.df.merge(kdf, left_on="ID number", right_on=matr_id_col)
+        # "inner" skips those that are not registered in this particular KUSSS course
+        df = self.df.merge(kdf, left_on="ID number", right_on=matr_id_col, how="inner")
         self._print(f"size after merging with KUSSS participants {kdf.shape}: {df.shape}")
         
         # apply the actual grading logic (implemented in concrete course subclasses)
