@@ -45,12 +45,13 @@ class Grader:
             and quiz columns (see `ignore_assignment_words` and `ignore_quiz_words` for more
             control over these two kinds of columns). Default: None = [], i.e., no column is
             kept in addition to the three ID columns and the assignment and quiz columns
-        :param ignore_assignment_words: A collection of words that indicate to drop an
-            assignment column if any word of this collection is contained within this column.
-            Default: None = [], i.e., every assignment column is kept
-        :param ignore_quiz_words: A collection of words that indicate to drop a quiz
-            column if any word of this collection is contained within this column.
-            Default: None = ["Dummy"], i.e., every quiz column is dropped which contains "Dummy"
+        :param ignore_assignment_words: A collection of case-insensitive words that indicate
+            to drop an assignment column if any word of this collection is contained within
+            this column. Default: None = [], i.e., every assignment column is kept
+        :param ignore_quiz_words: A collection of case-insensitive words that indicate to drop
+            a quiz column if any word of this collection is contained within this column.
+            Default: None = ["dummy"], i.e., every quiz column is dropped which contains
+            "Dummy" (case-insensitive)
         :param verbose: Whether to print additional output information. Default: True
         """
         self.verbose = verbose
@@ -58,8 +59,10 @@ class Grader:
             cols_to_keep = []
         if ignore_assignment_words is None:
             ignore_assignment_words = []
+        ignore_assignment_words = [w.lower() for w in ignore_assignment_words]
         if ignore_quiz_words is None:
-            ignore_quiz_words = ["Dummy"]
+            ignore_quiz_words = ["dummy"]
+        ignore_quiz_words = [w.lower() for w in ignore_quiz_words]
         
         df = pd.read_csv(moodle_file, na_values="-", encoding=encoding)
         self._print(f"original size: {df.shape}")
@@ -69,9 +72,9 @@ class Grader:
         # TODO: parameterize
         self.id_cols = ["First name", "Surname", "ID number"]
         self.assignment_cols = [c for c in df.columns if c.startswith("Assignment:") and
-                                all([w not in c for w in ignore_assignment_words])]
+                                all([w not in c.lower() for w in ignore_assignment_words])]
         self.quiz_cols = [c for c in df.columns if c.startswith("Quiz:") and
-                          all([w not in c for w in ignore_quiz_words])]
+                          all([w not in c.lower() for w in ignore_quiz_words])]
         df = df[self.id_cols + self.assignment_cols + self.quiz_cols + cols_to_keep]
         self._print(f"size after filtering columns: {df.shape}")
         
