@@ -1,4 +1,5 @@
 import argparse
+import re
 
 import pandas as pd
 
@@ -59,6 +60,19 @@ def create_grade(points, max_points, grading: dict = None) -> pd.Series:
     if total >= grading[4]:
         return pd.Series([4, ""])
     return pd.Series([5, f"total threshold not reached"])
+
+
+def check_matr_id_format(s: pd.Series):
+    """
+    Checks if the specified pd.Series object contains matriculation IDs in the
+    following format: "k<MATR_ID>", where <MATR_ID> is an 8-digit number. No
+    other leading or trailing characters are allowed. If an invalid format is
+    encountered, a ValueError is raised.
+    
+    :param s: The pd.Series that contains matriculation IDs.
+    """
+    if s.dtype != object or s.apply(lambda x: re.match(r"k\d{8}$", x) is None).any():
+        raise ValueError(f"series does not contain valid ('k<8-digit-matr-id>') matriculation IDs: {s}")
 
 
 def get_grading_args_parser():

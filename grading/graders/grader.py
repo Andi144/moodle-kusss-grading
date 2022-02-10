@@ -6,6 +6,8 @@ from typing import Iterable, Union, Sequence
 import numpy as np
 import pandas as pd
 
+from graders import util
+
 MOODLE_DE_TO_EN_FULL = {
     "Vorname": "First name",
     "Nachname": "Surname",
@@ -201,16 +203,12 @@ class Grader:
         
         # check duplicate entries (students who are found multiple times)
         full_kdf = pd.concat(kdfs, ignore_index=True)
+        util.check_matr_id_format(full_kdf[matr_id_col])
         kdf = full_kdf.copy().drop_duplicates()
         diff = full_kdf[full_kdf.duplicated()].drop_duplicates()
         if len(diff) > 0:
             warnings.warn(f"the following {len(diff)} duplicate entries were dropped (might be OK, e.g., if a "
                           f"student was unregistered from one course but the export still contains an entry):\n{diff}")
-        
-        # sanity check if the KUSSS participants files contain the matriculation ID in the format:
-        # leading "k", followed by 8 digits (no other leading or trailing characters)
-        assert kdf[matr_id_col].dtype == object and \
-               kdf[matr_id_col].apply(lambda s: re.match(r"k\d{8}$", s) is not None).all()
         
         # "inner" skips those that are not registered in this particular KUSSS course
         df = self.df.merge(kdf, left_on="ID number", right_on=matr_id_col, how="inner")
