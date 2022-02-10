@@ -95,7 +95,7 @@ class Python1Grader(Grader):
 
 
 if __name__ == "__main__":
-    args = util.get_grading_args()
+    args = util.get_grading_args_parser().parse_args()
     grader = Python1Grader(args.moodle_file)
     gdf = grader.create_grading_file(args.kusss_participants_files, grading_file=args.grading_file)
     gdf.to_csv(args.grading_file.replace(".csv", "_FULL.csv"), index=False)

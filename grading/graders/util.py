@@ -61,7 +61,7 @@ def create_grade(points, max_points, grading: dict = None) -> pd.Series:
     return pd.Series([5, f"total threshold not reached"])
 
 
-def get_grading_args():
+def get_grading_args_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("-mf", "--moodle_file", type=str, required=True,
                         help="Moodle CSV export file.")
@@ -69,4 +69,4 @@ def get_grading_args():
                         help="KUSSS participants CSV export files.")
     parser.add_argument("-gf", "--grading_file", type=str, default=None,
                         help="The output CSV file where the grades will be stored.")
-    return parser.parse_args()
+    return parser
