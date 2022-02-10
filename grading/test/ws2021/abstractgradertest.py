@@ -83,6 +83,6 @@ class AbstractGraderTest(unittest.TestCase):
     @staticmethod
     def create_matching_kusss_participants_file(moodle_df: pd.DataFrame, kusss_participants_file: str):
         df = pd.DataFrame()
-        df["Matrikelnummer"] = moodle_df["ID number"].apply(lambda x: f"k{x}")
+        df["Matrikelnummer"] = moodle_df["ID number"].apply(lambda x: f"k{x:08d}")
         df["SKZ"] = 123
         df.to_csv(kusss_participants_file, sep=";", index=False)
