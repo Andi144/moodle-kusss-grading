@@ -85,6 +85,9 @@ class Grader:
                 warnings.warn(f"the following entries were dropped due to invalid matriculation IDs:\n"
                               f"{invalid[self.id_cols]}")
         
+        # transform the integer ID to a string with exactly 8 characters (with leading zeros) + a leading "k"
+        df["ID number"] = df["ID number"].apply(lambda x: f"k{x:08d}")
+        
         # basic DataFrame is now finished at this point
         self.df = df
         # course-specific setup and adjustments (overridden in subclasses, if required)
@@ -204,9 +207,11 @@ class Grader:
             warnings.warn(f"the following {len(diff)} duplicate entries were dropped (might be OK, e.g., if a "
                           f"student was unregistered from one course but the export still contains an entry):\n{diff}")
         
-        kdf[matr_id_col] = kdf[matr_id_col].str.replace("k", "").astype(np.int64)
-        # skips those that are not registered in this particular KUSSS course
-        df = self.df.merge(kdf, left_on="ID number", right_on=matr_id_col)
+        # sanity check if the KUSSS participants files contain the matriculation ID in the format:
+        # leading "k", followed by 8 digits (no other leading or trailing characters)
+        assert kdf[matr_id_col].dtype == object and \
+               kdf[matr_id_col].apply(lambda s: re.match(r"k\d{8}$", s) is not None).all()
+        
         # "inner" skips those that are not registered in this particular KUSSS course
         df = self.df.merge(kdf, left_on="ID number", right_on=matr_id_col, how="inner")
         self._print(f"size after merging with KUSSS participants {kdf.shape}: {df.shape}")
@@ -222,8 +227,6 @@ class Grader:
         if cols_to_export is None:
             cols_to_export = [matr_id_col, study_id_col, grade_col, grade_reason_col]
         export_df = df[cols_to_export].copy()
-        # KUSSS requires the matriculation ID to be exactly 8 characters wide, so add leading zeros
-        export_df[matr_id_col] = export_df[matr_id_col].apply(lambda x: f"{x:08d}")
         export_df.to_csv(grading_file, sep=output_sep, index=False, header=header, encoding=output_encoding)
         self._print(f"KUSSS grading file ({len(df)} grades) written to: '{grading_file}'")
         
