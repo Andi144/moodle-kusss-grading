@@ -21,5 +21,5 @@ class HandsOn1ExerciseGrader(Grader):
 if __name__ == "__main__":
     args = util.get_grading_args_parser().parse_args()
     grader = HandsOn1ExerciseGrader(args.moodle_file)
-    gdf = grader.create_grading_file(args.kusss_participants_files, grading_file=args.grading_file)
-    gdf.to_csv(args.grading_file.replace(".csv", "_FULL.csv"), index=False)
+    gdf, gf = grader.create_grading_file(args.kusss_participants_files, grading_file=args.grading_file)
+    gdf.to_csv(gf.replace(".csv", "_FULL.csv"), index=False)

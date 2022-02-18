@@ -163,7 +163,7 @@ class Grader:
                             output_sep: str = ";", header: bool = False, grading_file: str = None,
                             grade_col: str = "grade", grade_reason_col: str = "grade_reason",
                             cols_to_export: Sequence = None, input_encoding: str = "ANSI",
-                            output_encoding: str = "utf8") -> pd.DataFrame:
+                            output_encoding: str = "utf8") -> tuple[pd.DataFrame, str]:
         """
         Creates a grading CSV file that can be uploaded to KUSSS based on the CSV input
         file(s) that contain the participants/students of some course(s) (exported via KUSSS).
@@ -186,7 +186,8 @@ class Grader:
         :param grading_file: If not None, specifies the path where the grading CSV output
             will be stored. Otherwise, the grading file will be stored at the same location
             as the input file (or as the first input file if multiple files were specified).
-            Moreover, the default file name will be "grading.csv". Default: None
+            Moreover, the default file name will be the same as the (first) input file with
+            "_grading.csv" as the new file name ending. Default: None
         :param grade_col: The column name of the grading CSV output file that contains the
             grade (np.int64). Default: "grade"
         :param grade_reason_col: The column name of the grading CSV output file that contains
@@ -196,8 +197,9 @@ class Grader:
         :param input_encoding: The encoding to use when reading each file specified by
             ``kusss_participants_files``. Default: "ANSI"
         :param output_encoding: The encoding to use when writing ``grading_file``. Default: "utf8"
-        :return: The final pd.DataFrame that contains all information including grades and
-            the reasons for these grades.
+        :return: A tuple containing (as first entry) the final pd.DataFrame that contains all
+            information including grades and the reasons for these grades, and as second entry,
+            the path of the grading CSV output file, i.e., ``grading_file``.
         """
         if isinstance(kusss_participants_files, str):
             kusss_participants_files = [kusss_participants_files]
@@ -221,7 +223,8 @@ class Grader:
         df[[grade_col, grade_reason_col]] = df.apply(self._create_grade_row, axis=1)
         
         if grading_file is None:
-            grading_file = os.path.join(os.path.split(kusss_participants_files[0])[0], "grading.csv")
+            filename, file_extension = os.path.splitext(kusss_participants_files[0])
+            grading_file = filename + "_grading.csv"
         # default format requirements for KUSSS grading import: "matriculationID;studyID;grade;externalInfo"
         # in the official KUSSS documentation, only "matriculationID;studyID;grade" is actually mentioned,
         # but the last column "externalInfo" is also automatically recognized without an explicit header
@@ -231,7 +234,7 @@ class Grader:
         export_df.to_csv(grading_file, sep=output_sep, index=False, header=header, encoding=output_encoding)
         self._print(f"KUSSS grading file ({len(df)} grades) written to: '{grading_file}'")
         
-        return df
+        return df, grading_file
     
     def _create_grade_row(self, row: pd.Series) -> pd.Series:
         """

@@ -107,5 +107,5 @@ if __name__ == "__main__":
                              "is the file specified last.")
     args = parser.parse_args()
     grader = SW1ExerciseGrader(args.moodle_file, args.exam_files)
-    gdf = grader.create_grading_file(args.kusss_participants_files, grading_file=args.grading_file)
-    gdf.to_csv(args.grading_file.replace(".csv", "_FULL.csv"), index=False)
+    gdf, gf = grader.create_grading_file(args.kusss_participants_files, grading_file=args.grading_file)
+    gdf.to_csv(gf.replace(".csv", "_FULL.csv"), index=False)

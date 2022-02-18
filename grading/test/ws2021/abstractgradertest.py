@@ -55,8 +55,8 @@ class AbstractGraderTest(unittest.TestCase):
         AbstractGraderTest.create_matching_kusss_participants_file(df, kusss_participants_file)
         
         grader = self.get_grader_class()(moodle_file, verbose=False, **grader_init_kwargs)
-        gdf = grader.create_grading_file(kusss_participants_file, grading_file=grading_file,
-                                         **grader_create_grading_file_kwargs)
+        gdf, _ = grader.create_grading_file(kusss_participants_file, grading_file=grading_file,
+                                            **grader_create_grading_file_kwargs)
         
         # use more detailed assertion checking instead of faster but less detailed global assertion
         # self.assertTrue(gdf["grade"].equals(points["expected_grade"]))
