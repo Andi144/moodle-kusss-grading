@@ -218,6 +218,8 @@ class Grader:
         # "inner" skips those that are not registered in this particular KUSSS course
         df = self.df.merge(kdf, left_on="ID number", right_on=matr_id_col, how="inner")
         self._print(f"size after merging with KUSSS participants {kdf.shape}: {df.shape}")
+        if len(df) == 0:
+            raise ValueError("no entries remain after merging with KUSSS participants")
         
         # apply the actual grading logic (implemented in concrete course subclasses)
         df[[grade_col, grade_reason_col]] = df.apply(self._create_grade_row, axis=1)
