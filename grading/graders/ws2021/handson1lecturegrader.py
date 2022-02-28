@@ -36,5 +36,8 @@ class HandsOn1LectureGrader(Grader):
 if __name__ == "__main__":
     args = util.get_grading_args_parser().parse_args()
     grader = HandsOn1LectureGrader(args.moodle_file)
-    gdf, gf = grader.create_grading_file(args.kusss_participants_files, grading_file=args.grading_file)
+    # gdf, gf = grader.create_grading_file(args.kusss_participants_files, grading_file=args.grading_file)
+    # only create grades for students who participated in the retry exam
+    gdf, gf = grader.create_grading_file(args.kusss_participants_files, grading_file=args.grading_file,
+                                         row_filter=lambda row: not np.isnan(row["Quiz: Retry Exam (Real)"]))
     gdf.to_csv(gf.replace(".csv", "_FULL.csv"), index=False)
