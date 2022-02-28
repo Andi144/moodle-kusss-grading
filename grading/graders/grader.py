@@ -1,7 +1,7 @@
 import os.path
 import re
 import warnings
-from typing import Iterable, Union, Sequence
+from typing import Iterable, Union, Sequence, Callable
 
 import numpy as np
 import pandas as pd
@@ -159,6 +159,7 @@ class Grader:
             self._print(f"dropped {len_before - len(self.df)} entries due to all NaN (no participation at all)")
     
     def create_grading_file(self, kusss_participants_files: Union[str, list[str]],
+                            row_filter: Callable[[pd.Series], bool] = None,
                             input_sep: str = ";", matr_id_col: str = "Matrikelnummer", study_id_col: str = "SKZ",
                             output_sep: str = ";", header: bool = False, grading_file: str = None,
                             grade_col: str = "grade", grade_reason_col: str = "grade_reason",
@@ -173,6 +174,10 @@ class Grader:
             paths of participants CSV input files. If it is a list, the participants will
             simply be merged, thereby dropping duplicate entries, where a duplicate entry
             is determined on the tuple (``matr_id_col``, ``study_id_col``).
+        :param row_filter: If not None, specifies a filter function that only keeps rows,
+            i.e., student entries, where True is returned. This function is applied after
+            merging with the KUSSS participants and right before the grades are calculated.
+            Default: None, i.e., all entries are used for grading
         :param input_sep: The separator character of the participants CSV input file(s).
             Default: ";"
         :param matr_id_col: The column name of the participants CSV input file(s) that
@@ -220,6 +225,15 @@ class Grader:
         self._print(f"size after merging with KUSSS participants {kdf.shape}: {df.shape}")
         if len(df) == 0:
             raise ValueError("no entries remain after merging with KUSSS participants")
+
+        # apply optional filtering to only create grades for certain entries
+        if row_filter is not None:
+            # row_filter yields true if the entry should be kept, so invert the boolean mask
+            exclude = df[~df.apply(row_filter, axis=1)]
+            if len(exclude) > 0:
+                df.drop(exclude.index, inplace=True)
+                if len(df) == 0:
+                    raise ValueError("no entries remain after applying the specified row filter")
         
         # apply the actual grading logic (implemented in concrete course subclasses)
         df[[grade_col, grade_reason_col]] = df.apply(self._create_grade_row, axis=1)
