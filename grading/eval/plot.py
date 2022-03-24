@@ -70,8 +70,10 @@ def line_breaking(s: str, line_len: int, max_len: int = None, max_line_breaks: i
     return new_s
 
 
-def plot_grade_hist(grading_file: str):
-    df = pd.read_csv(grading_file, sep=";", names=["id", "skz", "grade", "reason"])
+def plot_grade_hist(grading_files: list[str]):
+    # merge all files and keep last entry in case of duplicates = most recent entry if list is ordered
+    dfs = [pd.read_csv(gf, sep=";", names=["id", "skz", "grade", "reason"]) for gf in grading_files]
+    df = pd.concat(dfs, ignore_index=True).drop_duplicates(subset=["id", "skz"], keep="last")
     df["reason"] = ": " + df["reason"]  # only adds ": " for non-NaN values
     df["reason"].fillna("", inplace=True)
     df["grade_detail"] = (df["grade"].astype(str) + df["reason"]).apply(line_breaking, line_len=20, max_line_breaks=2)
@@ -109,7 +111,8 @@ def plot_grade_hist(grading_file: str):
     ax3.set_title("Detailed Grade")
     ax3.set_xlabel("")
     
-    fig.suptitle(os.path.basename(os.path.splitext(grading_file)[0]))
+    title = "\n".join([os.path.split(os.path.dirname(gf))[1] + "/" + os.path.basename(gf) for gf in grading_files])
+    fig.suptitle(title)
     fig.tight_layout()
     
     plt.show()
@@ -118,6 +121,8 @@ def plot_grade_hist(grading_file: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("grading_file", type=str, help="The output CSV file where the grades are stored.")
+    parser.add_argument("grading_files", nargs="+", type=str,
+                        help="The output CSV files where the grades are stored. In case of duplicate entries, "
+                             "the file specified last takes precedence, i.e., the order of this list matters.")
     args = parser.parse_args()
-    plot_grade_hist(args.grading_file)
+    plot_grade_hist(args.grading_files)
