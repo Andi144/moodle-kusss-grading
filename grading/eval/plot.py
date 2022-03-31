@@ -85,13 +85,16 @@ def plot_grade_hist(grading_files: list[str], skz: str = None):
     df.sort_values("grade_detail", inplace=True)
     
     def _plot_grade_hist(ax: plt.Axes, x: str, rotate: float = None):
+        grade_is_str = df[x].dtype == object
         ax_twin = ax.twinx()
         sns.histplot(data=df, x=x, discrete=True, ax=ax, color="bisque")
+        if not grade_is_str:
+            ax.set_xticks(range(1, 6))
         counts = [len(group_df) for _, group_df in df.groupby(x)]
         # shift count labels by 1% of max (so there is some space between the bars and the labels)
         y_offset = 0.01 * max(counts)
         for i, (grade, group_df) in enumerate(df.groupby(x)):
-            x_pos = i if type(grade) == str else grade
+            x_pos = i if grade_is_str else grade
             y_pos = len(group_df) + y_offset
             ax.text(x_pos, y_pos, f"{len(group_df)} ({len(group_df) / len(df):.1%})", ha="center")
         max_percent = max([100 * c / len(df) for c in counts])
