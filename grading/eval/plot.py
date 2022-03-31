@@ -2,6 +2,7 @@ import argparse
 import os
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -89,13 +90,14 @@ def plot_grade_hist(grading_files: list[str], skz: str = None):
         counts = [len(group_df) for _, group_df in df.groupby(x)]
         # shift count labels by 1% of max (so there is some space between the bars and the labels)
         y_offset = 0.01 * max(counts)
-        # TODO: slight hack: if the automatic determination of the x-ticks results in integers, do not use an offset
-        x_offset = 0 if type(ax.get_xticks()[0]) == int else 1
-        for i, count in enumerate(counts):
-            ax.text(i + x_offset, count + y_offset, f"{count} ({count / len(df):.1%})", ha="center")
+        for i, (grade, group_df) in enumerate(df.groupby(x)):
+            x_pos = i if type(grade) == str else grade
+            y_pos = len(group_df) + y_offset
+            ax.text(x_pos, y_pos, f"{len(group_df)} ({len(group_df) / len(df):.1%})", ha="center")
         max_percent = max([100 * c / len(df) for c in counts])
         # plot an invisible vertical line to automatically get the correct y-ticks
-        ax_twin.plot([0 + x_offset, 0 + x_offset], [0, max_percent], alpha=0)
+        x_pos = np.mean(ax.get_xticks())
+        ax_twin.plot([x_pos, x_pos], [0, max_percent], alpha=0)
         ax_twin.set_ylim(0, ax_twin.get_ylim()[1])
         ax_twin.set_ylabel("Percent")
         if rotate is not None:
