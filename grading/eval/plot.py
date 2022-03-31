@@ -79,39 +79,32 @@ def plot_grade_hist(grading_files: list[str]):
     df["grade_detail"] = (df["grade"].astype(str) + df["reason"]).apply(line_breaking, line_len=20, max_line_breaks=2)
     df.sort_values("grade_detail", inplace=True)
     
+    def _plot_grade_hist(ax: plt.Axes, x: str, rotate: float = None):
+        ax_twin = ax.twinx()
+        sns.histplot(data=df, x=x, discrete=True, ax=ax, color="bisque")
+        counts = [len(group_df) for _, group_df in df.groupby(x)]
+        # shift count labels by 1% of max (so there is some space between the bars and the labels)
+        y_offset = 0.01 * max(counts)
+        # TODO: slight hack: if the automatic determination of the x-ticks results in integers, do not use an offset
+        x_offset = 0 if type(ax.get_xticks()[0]) == int else 1
+        for i, count in enumerate(counts):
+            ax.text(i + x_offset, count + y_offset, f"{count} ({count / len(df):.1%})", ha="center")
+        max_percent = max([100 * c / len(df) for c in counts])
+        # plot an invisible vertical line to automatically get the correct y-ticks
+        ax_twin.plot([0 + x_offset, 0 + x_offset], [0, max_percent], alpha=0)
+        ax_twin.set_ylim(0, ax_twin.get_ylim()[1])
+        ax_twin.set_ylabel("Percent")
+        if rotate is not None:
+            plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+        ax.set_xlabel("")
+    
     # type hints to enable PyCharm suggestions and code completion
     fig: plt.Figure
-    ax1: plt.Axes
-    ax2: plt.Axes
-    
-    fig, (ax1, ax3) = plt.subplots(ncols=2, figsize=(14, 6))
-    
-    ax2 = ax1.twinx()
-    sns.histplot(data=df, x="grade", discrete=True, ax=ax1, color="bisque")
-    sns.histplot(data=df, x="grade", discrete=True, ax=ax2, color="bisque", stat="percent")
-    ax1.grid(axis="y", linestyle="--", color="gray")
-    ax2.grid(axis="y", linestyle="--", color="coral")
-    ax1.tick_params(axis="y", colors="gray")
-    ax2.tick_params(axis="y", colors="coral")
-    ax1.yaxis.label.set_color("gray")
-    ax2.yaxis.label.set_color("coral")
-    ax1.set_title(f"Grade (median = {df['grade'].median():.1f}; mean = {df['grade'].mean():.2f})")
-    ax1.set_xlabel("")
-    
-    ax4 = ax3.twinx()
-    sns.histplot(data=df, x="grade_detail", discrete=True, ax=ax3, color="bisque")
-    sns.histplot(data=df, x="grade_detail", discrete=True, ax=ax4, color="bisque", stat="percent")
-    ax3.grid(axis="y", linestyle="--", color="gray")
-    ax4.grid(axis="y", linestyle="--", color="coral")
-    ax3.tick_params(axis="y", colors="gray")
-    ax4.tick_params(axis="y", colors="coral")
-    ax3.yaxis.label.set_color("gray")
-    ax4.yaxis.label.set_color("coral")
-    plt.setp(ax3.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
-    ax3.set_title("Detailed Grade")
-    ax3.set_xlabel("")
-    
+    fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(14, 6))
+    _plot_grade_hist(ax1, "grade")
+    _plot_grade_hist(ax2, "grade_detail", rotate=45)
     title = "\n".join([os.path.split(os.path.dirname(gf))[1] + "/" + os.path.basename(gf) for gf in grading_files])
+    title += f"\nGrades (count = {len(df)}; median = {df['grade'].median():.1f}; mean = {df['grade'].mean():.2f})"
     fig.suptitle(title)
     fig.tight_layout()
     
