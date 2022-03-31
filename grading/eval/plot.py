@@ -70,10 +70,14 @@ def line_breaking(s: str, line_len: int, max_len: int = None, max_line_breaks: i
     return new_s
 
 
-def plot_grade_hist(grading_files: list[str]):
+def plot_grade_hist(grading_files: list[str], skz: str = None):
     # merge all files and keep last entry in case of duplicates = most recent entry if list is ordered
     dfs = [pd.read_csv(gf, sep=";", names=["id", "skz", "grade", "reason"]) for gf in grading_files]
     df = pd.concat(dfs, ignore_index=True).drop_duplicates(subset=["id", "skz"], keep="last")
+    if skz is not None:
+        df = df[df["skz"] == skz]
+        if len(df) == 0:
+            raise ValueError(f"no entries found for specified SKZ = {skz}")
     df["reason"] = ": " + df["reason"]  # only adds ": " for non-NaN values
     df["reason"].fillna("", inplace=True)
     df["grade_detail"] = (df["grade"].astype(str) + df["reason"]).apply(line_breaking, line_len=20, max_line_breaks=2)
@@ -105,6 +109,8 @@ def plot_grade_hist(grading_files: list[str]):
     _plot_grade_hist(ax2, "grade_detail", rotate=45)
     title = "\n".join([os.path.split(os.path.dirname(gf))[1] + "/" + os.path.basename(gf) for gf in grading_files])
     title += f"\nGrades (count = {len(df)}; median = {df['grade'].median():.1f}; mean = {df['grade'].mean():.2f})"
+    if skz is not None:
+        title += f" for SKZ = {skz}"
     fig.suptitle(title)
     fig.tight_layout()
     
@@ -117,5 +123,7 @@ if __name__ == "__main__":
     parser.add_argument("grading_files", nargs="+", type=str,
                         help="The output CSV files where the grades are stored. In case of duplicate entries, "
                              "the file specified last takes precedence, i.e., the order of this list matters.")
+    parser.add_argument("--skz", type=int,
+                        help="Restrict the output to only include students with this study identification (SKZ).")
     args = parser.parse_args()
-    plot_grade_hist(args.grading_files)
+    plot_grade_hist(args.grading_files, args.skz)
