@@ -10,14 +10,14 @@ def print_counts_by_skz(participant_files: list[str], grading_files: list[str]):
     dfs = [pd.read_csv(gf, sep=";", names=["id", "skz", "grade", "reason"]) for gf in grading_files]
     gdf = pd.concat(dfs, ignore_index=True).drop_duplicates(subset=["id", "skz"], keep="last")
 
-    print("===== Number of registered students grouped by SKZ =====")
+    print(f"===== Number of registered students (total = {len(pdf)}) grouped by SKZ =====")
     p_counts = pdf.groupby("skz").count()
     p_counts.columns = ["count"]
     p_counts.sort_values("count", inplace=True)
     p_counts["percent"] = 100 * p_counts["count"] / p_counts["count"].sum()
     print(p_counts)
     
-    print("\n===== Number of graded students grouped by SKZ =====")
+    print(f"\n===== Number of graded students (total = {len(gdf)}) grouped by SKZ =====")
     g_counts = gdf.groupby("skz")[["id"]].count()
     g_counts.columns = ["count"]
     g_counts.sort_values("count", inplace=True)
