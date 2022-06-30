@@ -1,7 +1,7 @@
 import pandas as pd
 
 from graders.ws2021.handson1exercisegrader import HandsOn1ExerciseGrader
-from test.ws2021.abstractgradertest import AbstractGraderTest
+from test.abstractgradertest import AbstractGraderTest
 
 COLUMNS = [f"Assignment: Assignment {i + 1} (Real)" for i in range(7)] + ["expected_grade"]
 

@@ -1,7 +1,7 @@
 import pandas as pd
 
 from graders.ws2021.handson1lecturegrader import HandsOn1LectureGrader
-from test.ws2021.abstractgradertest import AbstractGraderTest
+from test.abstractgradertest import AbstractGraderTest
 
 QRETRY_COL = "Quiz: Retry Exam (Real)"
 COLUMNS = ["Quiz: Exam 1 (Real)", "Quiz: Exam 2 (Real)", QRETRY_COL, "expected_grade"]
