@@ -50,6 +50,8 @@ class AbstractGraderTest(unittest.TestCase):
             grader_init_kwargs = dict()
         if grader_create_grading_file_kwargs is None:
             grader_create_grading_file_kwargs = dict()
+        if "grade_col" not in grader_create_grading_file_kwargs:
+            grader_create_grading_file_kwargs["grade_col"] = "grade"
         
         df = AbstractGraderTest.create_moodle_file_with_points(points, moodle_file)
         AbstractGraderTest.create_matching_kusss_participants_file(df, kusss_participants_file)
@@ -60,7 +62,8 @@ class AbstractGraderTest(unittest.TestCase):
         
         # use more detailed assertion checking instead of faster but less detailed global assertion
         # self.assertTrue(gdf["grade"].equals(points["expected_grade"]))
-        for i, (expected_grade, actual_grade) in enumerate(zip(points.iloc[:, -1], gdf["grade"])):
+        for i, (expected_grade, actual_grade) in enumerate(
+                zip(points.iloc[:, -1], gdf[grader_create_grading_file_kwargs["grade_col"]])):
             self.assertEqual(expected_grade, actual_grade, msg=f"\n{gdf.iloc[i]}")
     
     def get_grader_class(self) -> type:
