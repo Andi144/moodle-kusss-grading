@@ -234,6 +234,7 @@ class Grader:
                 df.drop(exclude.index, inplace=True)
                 if len(df) == 0:
                     raise ValueError("no entries remain after applying the specified row filter")
+            self._print(f"size after applying row filter: {df.shape}")
         
         # apply the actual grading logic (implemented in concrete course subclasses)
         df[[grade_col, grade_reason_col]] = df.apply(self._create_grade_row, axis=1)
