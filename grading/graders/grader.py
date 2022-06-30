@@ -238,6 +238,9 @@ class Grader:
         
         # apply the actual grading logic (implemented in concrete course subclasses)
         df[[grade_col, grade_reason_col]] = df.apply(self._create_grade_row, axis=1)
+        # sort according to matriculation ID and study ID to always get the same output order, which
+        # makes a (potential) manual inspection more convenient
+        df.sort_values([matr_id_col, study_id_col], inplace=True)
         
         if grading_file is None:
             filename, file_extension = os.path.splitext(kusss_participants_files[0])
