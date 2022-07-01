@@ -97,6 +97,8 @@ class Grader:
         self.df = df
         # course-specific setup and adjustments (overridden in subclasses, if required)
         self._print("applying course-specific setup and adjustments...")
+        # TODO: if subclasses override both init and _course_setup, things become tricky... (dynamically bound method
+        #  in init/constructor call); maybe get rid of _course_setup and put everything into init
         self._course_setup()
         self._print(f"size after applying course-specific setup and adjustments: {self.df.shape}")
         if len(self.df) == 0:
