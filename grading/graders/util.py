@@ -59,7 +59,7 @@ def create_grade(points, max_points, grading: dict = None) -> pd.Series:
         return pd.Series([3, ""])
     if total >= grading[4]:
         return pd.Series([4, ""])
-    return pd.Series([5, f"total threshold not reached"])
+    return pd.Series([5, "total threshold not reached"])
 
 
 def check_matr_id_format(s: pd.Series):
