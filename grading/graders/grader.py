@@ -42,7 +42,7 @@ class Grader:
         :param encoding: The encoding to use when reading ``moodle_file``. Default: "utf8"
         :param cols_to_keep: A collection of columns to keep in addition to the three mandatory
             ID columns ("First name", "Surname", "ID number") and in addition to the assignment
-            and quiz columns (see `ignore_assignment_words` and `ignore_quiz_words` for more
+            and quiz columns (see `ignore_assignment_words` and ``ignore_quiz_words`` for more
             control over these two kinds of columns). Default: None = [], i.e., no column is
             kept in addition to the three ID columns and the assignment and quiz columns
         :param ignore_assignment_words: A collection of case-insensitive words that indicate
