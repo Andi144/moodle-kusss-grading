@@ -151,7 +151,7 @@ class Grader:
         """
         This method is called for setting up and adjusting the ``self.df`` pd.DataFrame,
         which might be important to create and calculate additional data/columns that
-        can then be conveniently used in the grading method ``self.create_grade_row``.
+        can then be conveniently used in the grading method ``self._create_grade_row``.
         
         Per default, this method excludes/drops all students without any submission (i.e.,
         all NaN for assignments and quizzes), which means that those students will not be
