@@ -51,7 +51,7 @@ class Grader:
         :param ignore_quiz_words: A collection of case-insensitive words that indicate to drop
             a quiz column if any word of this collection is contained within this column.
             Default: None = ["dummy"], i.e., every quiz column is dropped which contains
-            "Dummy" (case-insensitive)
+            "dummy" (case-insensitive)
         :param verbose: Whether to print additional output information. Default: True
         """
         self.verbose = verbose
