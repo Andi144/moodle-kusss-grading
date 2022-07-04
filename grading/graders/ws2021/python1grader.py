@@ -31,7 +31,7 @@ class Python1Grader(Grader):
         super()._course_setup()
         # Moodle exercise points are scaled by a factor of 10
         self.df[self.assignment_cols] /= 10
-        # points are no properly and consistently scaled
+        # points are now properly and consistently scaled
         self._assignment_setup()
         self._quiz_setup()
     
