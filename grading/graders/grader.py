@@ -75,8 +75,12 @@ class Grader:
                                 all([w not in c.lower() for w in ignore_assignment_words])]
         self.quiz_cols = [c for c in df.columns if c.startswith("Quiz:") and
                           all([w not in c.lower() for w in ignore_quiz_words])]
-        df = df[self.id_cols + self.assignment_cols + self.quiz_cols + cols_to_keep]
-        self._print(f"size after filtering columns: {df.shape}")
+        cols_to_keep = self.id_cols + self.assignment_cols + self.quiz_cols + cols_to_keep
+        dropped_cols = set(df.columns) - set(cols_to_keep)
+        df = df[cols_to_keep]
+        self._print(f"size after filtering columns: {df.shape}, dropped columns: {dropped_cols}")
+        self._print(f"identified {len(self.assignment_cols)} assignment columns: {self.assignment_cols}")
+        self._print(f"identified {len(self.quiz_cols)} quiz columns: {self.quiz_cols}")
         
         # check if there are invalid matriculation ID numbers (e.g., due to having manually
         # added a student to Moodle who is not a registered KUSSS student); if there are, then
