@@ -106,6 +106,7 @@ if __name__ == "__main__":
                              "the order is in chronologically ascending order, i.e., the most recent exam result "
                              "is the file specified last.")
     args = parser.parse_args()
+    util.args_sanity_check(args.moodle_file, args.kusss_participants_files, "sw1")
     grader = SW1ExerciseGrader(args.moodle_file, args.exam_files)
     gdf, gf = grader.create_grading_file(args.kusss_participants_files, grading_file=args.grading_file)
     gdf.to_csv(gf.replace(".csv", "_FULL.csv"), index=False)

@@ -1,5 +1,6 @@
 import argparse
 import re
+import warnings
 
 import pandas as pd
 
@@ -84,3 +85,42 @@ def get_grading_args_parser():
     parser.add_argument("-gf", "--grading_file", type=str, default=None,
                         help="The output CSV file where the grades will be stored.")
     return parser
+
+
+def args_sanity_check(moodle_file: str, kusss_participants_files: list, common_expectation: str = None,
+                      moodle_file_expectation: str = None, kusss_participants_file_expectation: str = None,
+                      raise_error: bool = False):
+    """
+    Performs a simple sanity check based on whether the string ``xyz_expectation`` is contained
+    in ``xyz``, e.g., if ``moodle_file_expectation`` is contained in ``moodle_file``. This function
+    is useful to quickly check if the script was potentially called with incorrect arguments.
+    
+    :param moodle_file: The name of the Moodle file (see function ``get_grading_args_parser``).
+    :param kusss_participants_files: The names of the KUSSS participants files (see function
+        ``get_grading_args_parser``).
+    :param common_expectation: What to expect in ``moodle_file`` as well as in each name of the
+        files in ``kusss_participants_files``. If None, no check is performed. Default: None
+    :param moodle_file_expectation: What to expect in ``moodle_file``. If None, no check is
+        performed. Default: None
+    :param kusss_participants_file_expectation: What to expect in each name of the files in
+        ``kusss_participants_files``. If None, no check is performed. Default: None
+    :param raise_error: If True, raise a ValueError, otherwise, only a warning is issued.
+        Default: False
+    """
+    
+    def expectation_check(expectation, actual):
+        if expectation is not None and expectation not in actual:
+            msg = f"'{expectation}' does not appear in '{actual}', perhaps wrong script argument?"
+            if raise_error:
+                raise ValueError(msg)
+            else:
+                warnings.warn(msg)
+    
+    if common_expectation is None and moodle_file_expectation is None and kusss_participants_file_expectation is None:
+        warnings.warn("'args_sanity_check' is called with all expectation parameters set to None, which is a no-op")
+    
+    expectation_check(common_expectation, moodle_file)
+    expectation_check(moodle_file_expectation, moodle_file)
+    for kpf in kusss_participants_files:
+        expectation_check(common_expectation, kpf)
+        expectation_check(kusss_participants_file_expectation, kpf)

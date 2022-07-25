@@ -97,6 +97,7 @@ class Python1Grader(Grader):
 if __name__ == "__main__":
     args = util.get_grading_args_parser().parse_args()
     grader = Python1Grader(args.moodle_file)
+    util.args_sanity_check(args.moodle_file, args.kusss_participants_files, "python1")
     gdf, gf = grader.create_grading_file(args.kusss_participants_files, grading_file=args.grading_file)
     # only create grades for students who participated in the retry exam
     # gdf, gf = grader.create_grading_file(args.kusss_participants_files, grading_file=args.grading_file,
