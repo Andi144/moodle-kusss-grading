@@ -61,6 +61,8 @@ class Python2Grader(Grader):
 if __name__ == "__main__":
     args = util.get_grading_args_parser().parse_args()
     util.args_sanity_check(args.moodle_file, args.kusss_participants_files, "python2")
-    grader = Python2Grader(args.moodle_file)
-    gdf, gf = grader.create_grading_file(args.kusss_participants_files, grading_file=args.grading_file)
-    gdf.to_csv(gf.replace(".csv", "_FULL.csv"), index=False)
+    assert args.grading_file is None, "not supported since all KUSSS participants files are treated individually"
+    for kusss_participants_file in args.kusss_participants_files:
+        grader = Python2Grader(args.moodle_file)
+        gdf, gf = grader.create_grading_file(kusss_participants_file)
+        gdf.to_csv(gf.replace(".csv", "_FULL.csv"), index=False)
