@@ -25,6 +25,20 @@ class Python2Grader(Grader):
         self.df["a2_total"] = self.df[a2_cols].sum(axis=1)
     
     def _create_grade_row(self, row: pd.Series) -> pd.Series:
+        # assignments processing (if students already failed the course via some
+        # assignment rule, there is no need to even look at the exam, since it
+        # will not make a difference anymore, i.e., assignment fails are a
+        # "hard" fail (unchangeable grade 5), while exam fails are a "soft" fail
+        # (can be potentially corrected by a retry exam)
+        a1_points = row["a1_total"]
+        a2_points = row["a2_total"]
+        if a1_points < MAX_POINTS_A1 * THRESHOLD_INDIVIDUAL_A:
+            return pd.Series([5, "assignment 1 threshold not reached"])
+        if a2_points < MAX_POINTS_A2 * THRESHOLD_INDIVIDUAL_A:
+            return pd.Series([5, "assignment 2 threshold not reached"])
+        if a1_points + a2_points < MAX_POINTS_ALL_A * THRESHOLD_ALL_A:
+            return pd.Series([5, "total assignment threshold not reached"])
+        
         # exam processing
         e1 = row["Quiz: Exam (Real)"]
         e2 = row["Quiz: Retry Exam (Real)"]
@@ -40,16 +54,6 @@ class Python2Grader(Grader):
             return pd.Series([5, "no exam participation"])
         if e_points < MAX_POINTS_EXAM * THRESHOLD_EXAM:
             return pd.Series([5, "exam threshold not reached"])
-        
-        # assignments processing
-        a1_points = row["a1_total"]
-        a2_points = row["a2_total"]
-        if a1_points < MAX_POINTS_A1 * THRESHOLD_INDIVIDUAL_A:
-            return pd.Series([5, "assignment 1 threshold not reached"])
-        if a2_points < MAX_POINTS_A2 * THRESHOLD_INDIVIDUAL_A:
-            return pd.Series([5, "assignment 2 threshold not reached"])
-        if a1_points + a2_points < MAX_POINTS_ALL_A * THRESHOLD_ALL_A:
-            return pd.Series([5, "total assignment threshold not reached"])
         
         return util.create_grade(e_points + a1_points + a2_points, MAX_POINTS)
 
