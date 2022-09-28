@@ -62,7 +62,14 @@ if __name__ == "__main__":
     args = util.get_grading_args_parser().parse_args()
     util.args_sanity_check(args.moodle_file, args.kusss_participants_files, "python2")
     assert args.grading_file is None, "not supported since all KUSSS participants files are treated individually"
+    grader = Python2Grader(args.moodle_file)
     for kusss_participants_file in args.kusss_participants_files:
-        grader = Python2Grader(args.moodle_file)
-        gdf, gf = grader.create_grading_file(kusss_participants_file)
-        gdf.to_csv(gf.replace(".csv", "_FULL.csv"), index=False)
+        try:
+            # regular; below is creating grades only for retry exam participants
+            # gdf, gf = grader.create_grading_file(kusss_participants_file)
+            gdf, gf = grader.create_grading_file(kusss_participants_file,
+                                                 row_filter=lambda row: not np.isnan(row["Quiz: Retry Exam (Real)"]))
+            gdf.to_csv(gf.replace(".csv", "_FULL.csv"), index=False)
+        except ValueError as e:
+            print(f"### ignore file '{kusss_participants_file}' because of '{e}'")
+        print()
