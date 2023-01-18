@@ -27,7 +27,6 @@ class HandsOn2LectureGrader(Grader):
         # (example is based on the default grading percentages of util.create_grade)
         decimals = points % 1
         if 1 - decimals < 0.1:
-            print(points, round(points))
             points = round(points)
         return util.create_grade(points, MAX_POINTS)
 
