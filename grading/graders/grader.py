@@ -231,6 +231,12 @@ class Grader:
         self._print(f"size after merging with KUSSS participants {kdf.shape}: {df.shape}")
         if len(df) == 0:
             raise ValueError("no entries remain after merging with KUSSS participants")
+        elif len(df) < len(self.df):
+            diff = self.df[~self.df["ID number"].isin(kdf[matr_id_col])]
+            assert len(diff) == len(self.df) - len(df)
+            warnings.warn(f"the following {len(diff)} entries were not part of the KUSSS participants, so they cannot "
+                          f"be graded (might be OK, e.g., if there is both a lecture and exercise with a joint Moodle "
+                          f"page, and these students deliberately only registered for one of the two):\n{diff}")
 
         # apply optional filtering to only create grades for certain entries
         if row_filter is not None:
