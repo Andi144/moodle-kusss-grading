@@ -20,7 +20,8 @@ class Python1LectureGrader(Grader):
             points = e2
         else:
             assert not np.isnan(e1)
-            points = e1
+            # +0.5 points due to unintentional misinformation during exam Q&A
+            points = e1 + 0.5
         return util.create_grade(points, MAX_POINTS)
 
 
