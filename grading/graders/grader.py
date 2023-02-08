@@ -235,8 +235,9 @@ class Grader:
             diff = self.df[~self.df["ID number"].isin(kdf[matr_id_col])]
             assert len(diff) == len(self.df) - len(df)
             warnings.warn(f"the following {len(diff)} entries were not part of the KUSSS participants, so they cannot "
-                          f"be graded (might be OK, e.g., if there is both a lecture and exercise with a joint Moodle "
-                          f"page, and these students deliberately only registered for one of the two):\n{diff}")
+                          f"be graded (might be OK, e.g., if there is both a lecture and exercise, or multiple "
+                          f"mutually exclusive exercise groups, with a joint Moodle page, and these students "
+                          f"deliberately only registered for one of the two):\n{diff}")
 
         # apply optional filtering to only create grades for certain entries
         if row_filter is not None:
