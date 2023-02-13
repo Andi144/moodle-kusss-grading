@@ -18,6 +18,13 @@ THRESHOLD_ALL_A = 0.5
 
 class Python1ExerciseGrader(Grader):
     
+    def _course_setup(self):
+        len_before = len(self.df)
+        self.df.dropna(how="all", subset=self.assignment_cols, inplace=True)
+        if len_before != len(self.df):
+            self._print(f"dropped {len_before - len(self.df)} entries due to all assignments being NaN (no "
+                        f"participation in the assignments at all)")
+    
     def _create_grade_row(self, row: pd.Series) -> pd.Series:
         # assignments processing (if students already failed the course via some assignment rule, there is no need to
         # even look at the exam, since it will not make a difference anymore, i.e., assignment fails are a "hard" fail
