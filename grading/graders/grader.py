@@ -238,7 +238,7 @@ class Grader:
                           f"be graded (might be OK, e.g., if there is both a lecture and exercise, or multiple "
                           f"mutually exclusive exercise groups, with a joint Moodle page, and these students "
                           f"deliberately only registered for one of the two):\n{diff}")
-
+        
         # apply optional filtering to only create grades for certain entries
         if row_filter is not None:
             # row_filter yields true if the entry should be kept, so invert the boolean mask
