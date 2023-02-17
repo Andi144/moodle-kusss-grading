@@ -235,7 +235,12 @@ class Grader:
         self._print(f"size after merging with KUSSS participants {kdf.shape}: {df.shape}")
         if len(df) == 0:
             raise ValueError("no entries remain after merging with KUSSS participants")
-        elif len(df) < len(self.df) and warn_if_not_found_in_kusss_participants:
+        if len(df) < len(kdf):
+            diff = kdf[~kdf[matr_id_col].isin(df["ID number"])]
+            assert len(diff) == len(kdf) - len(df)
+            warnings.warn(f"the following {len(diff)} KUSSS participants were not part of the main Moodle participants "
+                          f"(might be OK, e.g., if students dropped out/are no longer active):\n{diff}")
+        if len(df) < len(self.df) and warn_if_not_found_in_kusss_participants:
             diff = self.df[~self.df["ID number"].isin(kdf[matr_id_col])]
             assert len(diff) == len(self.df) - len(df)
             warnings.warn(f"the following {len(diff)} entries were not part of the KUSSS participants, so they cannot "
