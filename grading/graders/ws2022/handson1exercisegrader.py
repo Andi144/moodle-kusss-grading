@@ -7,9 +7,10 @@ from graders.grader import Grader
 MAX_POINTS = 700  # 7 assignments with 100 points each
 
 
-# TODO: code duplication  (ws2021)
+# TODO: code duplication (ws2021)
 class HandsOn1ExerciseGrader(Grader):
     
+    # TODO: code duplication in python1exercisegrader (could move to common superclass, e.g., ExerciseGrader)
     def _process_entries(self, df: pd.DataFrame) -> pd.DataFrame:
         len_before = len(df)
         df.dropna(how="all", subset=self.assignment_cols, inplace=True)
