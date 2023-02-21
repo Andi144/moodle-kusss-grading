@@ -55,6 +55,10 @@ class Grader:
         :param verbose: Whether to print additional output information. Default: True
         """
         self.verbose = verbose
+        if verbose:
+            # TODO: only temp (should be done at the application level, not here, as it should be the user's choice)
+            pd.options.display.max_columns = 100
+            pd.options.display.expand_frame_repr = False
         if cols_to_keep is None:
             cols_to_keep = []
         if ignore_assignment_words is None:
@@ -99,14 +103,6 @@ class Grader:
         
         # basic DataFrame is now finished at this point
         self.df = df
-        # course-specific setup and adjustments (overridden in subclasses, if required)
-        self._print("applying course-specific setup and adjustments...")
-        # TODO: if subclasses override both init and _course_setup, things become tricky... (dynamically bound method
-        #  in init/constructor call); maybe get rid of _course_setup and put everything into init
-        self._course_setup()
-        self._print(f"size after applying course-specific setup and adjustments: {self.df.shape}")
-        if len(self.df) == 0:
-            raise ValueError("no entries remain after dropping, cannot create Grader object")
     
     def _print(self, msg):
         if self.verbose:
@@ -146,23 +142,6 @@ class Grader:
         new_df = df.copy()
         new_df.columns = new_columns
         return new_df
-    
-    def _course_setup(self):
-        """
-        This method is called for setting up and adjusting the ``self.df`` pd.DataFrame,
-        which might be important to create and calculate additional data/columns that
-        can then be conveniently used in the grading method ``self._create_grade_row``.
-        
-        Per default, this method excludes/drops all students without any submission (i.e.,
-        all NaN for assignments and quizzes), which means that those students will not be
-        graded at the end (rather than getting a negative grade).
-        
-        Subclasses are encouraged to change this behavior, if required.
-        """
-        len_before = len(self.df)
-        self.df.dropna(how="all", subset=self.assignment_cols + self.quiz_cols, inplace=True)
-        if len_before != len(self.df):
-            self._print(f"dropped {len_before - len(self.df)} entries due to all NaN (no participation at all)")
     
     def create_grading_file(self, kusss_participants_files: Union[str, list[str]],
                             row_filter: Callable[[pd.Series], bool] = None,
@@ -248,7 +227,13 @@ class Grader:
                           f"mutually exclusive exercise groups, with a joint Moodle page, and these students "
                           f"deliberately only registered for one of the two):\n{diff}")
         
-        # apply optional filtering to only create grades for certain entries
+        # apply general processing (changes, filtering)
+        df = self._process_entries(df)
+        self._print(f"size after processing: {df.shape}")
+        if len(df) == 0:
+            raise ValueError("no entries remain after processing")
+        
+        # apply optional, row-based filtering to only create grades for certain entries
         if row_filter is not None:
             # row_filter yields true if the entry should be kept, so invert the boolean mask
             exclude = df[~df.apply(row_filter, axis=1)]
@@ -278,15 +263,39 @@ class Grader:
         
         return df, grading_file
     
+    def _process_entries(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        This method is called in ``self.create_grading_file`` before creating the grades with
+        ``self._create_grade_row`` and serves as a general processing mechanism. The passed
+         pd.DataFrame can be changed to include more information (columns) per entry/student,
+         or it can be filtered to exclude entries/students that should not be graded. The
+         processed pd.DataFrame is returned.
+
+        By default, this method excludes/drops all students without any submission (i.e., all
+        NaN for assignments and quizzes), which means that those students will not be graded
+        at the end (rather than getting a negative grade).
+
+        Subclasses are encouraged to change this behavior, if required.
+        
+        :param df: The pd.DataFrame that should be processed.
+        :return: The processed pd.DataFrame.
+        """
+        len_before = len(df)
+        df = df.dropna(how="all", subset=self.assignment_cols + self.quiz_cols)
+        if len_before != len(df):
+            self._print(f"dropped {len_before - len(df)} entries due to all NaN (no participation at all)")
+        return df
+    
     def _create_grade_row(self, row: pd.Series) -> pd.Series:
         """
-        This method is called for each row in ``self.df`` and expects a pd.Series object
-        of size 2 to be returned. The first entry of this series must be the grade (type:
-        np.int64), the second entry must be the reason for this grade (type: str, i.e.,
-        pandas object), which might simply be am empty string if there is no special
-        reason for this grade.
+        This method is called for each row in the final, processed pd.DataFrame in
+        ``self.create_grading_file``. It expects a pd.Series object of size 2 to be returned.
+        The first entry of this series must be the grade (type: np.int64), the second entry must
+        be the reason for this grade (type: str, i.e., pandas object), which might simply be an
+        empty string if there is no special reason for this grade.
         
-        :param row: The row (one of ``self.df``) to calculate the grade for.
+        :param row: The row (one of the final, processed pd.DataFrame in ``self.create_grading_file``)
+            to calculate the grade for.
         :return: A pd.Series object where the first entry is the grade (type: np.int64) and
             the second entry the reason (type: str, i.e., pandas object) for this grade.
         """

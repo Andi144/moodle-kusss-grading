@@ -27,15 +27,16 @@ DECIMALS = 5
 
 class Python1Grader(Grader):
     
-    def _course_setup(self):
-        super()._course_setup()
+    def _process_entries(self, df: pd.DataFrame) -> pd.DataFrame:
+        df = super()._process_entries(df)
         # Moodle exercise points are scaled by a factor of 10
-        self.df[self.assignment_cols] /= 10
+        df[self.assignment_cols] /= 10
         # points are now properly and consistently scaled
-        self._assignment_setup()
-        self._quiz_setup()
+        df = self._assignment_setup(df)
+        df = self._quiz_setup(df)
+        return df
     
-    def _assignment_setup(self):
+    def _assignment_setup(self, df: pd.DataFrame) -> pd.DataFrame:
         assignment1_cols = [c for c in self.assignment_cols if any([f"Exercise {i} " in c for i in range(1, 4 + 1)])]
         assignment2_cols = [c for c in self.assignment_cols if any([f"Exercise {i} " in c for i in range(5, 15 + 1)])]
         assignment3_cols = [c for c in self.assignment_cols if any([f"Exercise {i} " in c for i in range(16, 21 + 1)])]
@@ -48,12 +49,13 @@ class Python1Grader(Grader):
         
         # passed-flag for each assignment
         for cols, name, max_points, threshold in assignments:
-            self.df[f"{name}_passed"] = self.df[cols].sum(axis=1).round(DECIMALS) >= threshold * max_points
+            df[f"{name}_passed"] = df[cols].sum(axis=1).round(DECIMALS) >= threshold * max_points
         
         # total points of all assignments (all exercises)
-        self.df["a_total"] = self.df[self.assignment_cols].sum(axis=1).round(DECIMALS)
+        df["a_total"] = df[self.assignment_cols].sum(axis=1).round(DECIMALS)
+        return df
     
-    def _quiz_setup(self):
+    def _quiz_setup(self, df: pd.DataFrame) -> pd.DataFrame:
         quiz1_cols = [c for c in self.quiz_cols if "Exam 1 " in c]
         quiz2_cols = [c for c in self.quiz_cols if "Exam 2 " in c]
         quizretry_cols = [c for c in self.quiz_cols if "Retry Exam " in c]
@@ -70,7 +72,7 @@ class Python1Grader(Grader):
             return row[quizretry_col] >= THRESHOLD_INDIVIDUAL_QRETRY * MAX_POINTS_QRETRY
         
         # passed-flag for the exams (includes proper handling of normal exams and retry exam)
-        self.df["q_passed"] = self.df[self.quiz_cols].apply(create_quiz_passed_row, axis=1)
+        df["q_passed"] = df[self.quiz_cols].apply(create_quiz_passed_row, axis=1)
         
         def create_quiz_total_row(row):
             # total points: q1 + q2 OR qretry if qretry is not NaN
@@ -79,7 +81,8 @@ class Python1Grader(Grader):
             return row[quizretry_col]
         
         # total points of exams (includes proper handling of normal exams and retry exam)
-        self.df["q_total"] = self.df[self.quiz_cols].apply(create_quiz_total_row, axis=1)
+        df["q_total"] = df[self.quiz_cols].apply(create_quiz_total_row, axis=1)
+        return df
     
     def _create_grade_row(self, row) -> pd.Series:
         if not row["a1_passed"] or not row["a2_passed"] or not row["a3_passed"]:

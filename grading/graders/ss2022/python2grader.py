@@ -17,12 +17,13 @@ THRESHOLD_ALL_A = 0.5
 
 class Python2Grader(Grader):
     
-    def _course_setup(self):
-        super()._course_setup()
+    def _process_entries(self, df: pd.DataFrame) -> pd.DataFrame:
+        df = super()._process_entries(df)
         a1_cols = [c for c in self.assignment_cols if any([f"Exercise {i} " in c for i in range(1, 3 + 1)])]
         a2_cols = [c for c in self.assignment_cols if any([f"Exercise {i} " in c for i in range(4, 6 + 1)])]
-        self.df["a1_total"] = self.df[a1_cols].sum(axis=1)
-        self.df["a2_total"] = self.df[a2_cols].sum(axis=1)
+        df["a1_total"] = df[a1_cols].sum(axis=1)
+        df["a2_total"] = df[a2_cols].sum(axis=1)
+        return df
     
     def _create_grade_row(self, row: pd.Series) -> pd.Series:
         # assignments processing (if students already failed the course via some

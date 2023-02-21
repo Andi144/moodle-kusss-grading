@@ -10,12 +10,13 @@ MAX_POINTS = 700  # 7 assignments with 100 points each
 # TODO: code duplication  (ws2021)
 class HandsOn1ExerciseGrader(Grader):
     
-    def _course_setup(self):
-        len_before = len(self.df)
-        self.df.dropna(how="all", subset=self.assignment_cols, inplace=True)
-        if len_before != len(self.df):
-            self._print(f"dropped {len_before - len(self.df)} entries due to all assignments being NaN (no "
-                        f"participation in the assignments at all)")
+    def _process_entries(self, df: pd.DataFrame) -> pd.DataFrame:
+        len_before = len(df)
+        df.dropna(how="all", subset=self.assignment_cols, inplace=True)
+        if len_before != len(df):
+            self._print(f"dropped {len_before - len(df)} entries due to all assignments being NaN (no participation in "
+                        f"the assignments at all)")
+        return df
     
     def _create_grade_row(self, row: pd.Series) -> pd.Series:
         # only one assignment can be skipped or graded with 0 points
