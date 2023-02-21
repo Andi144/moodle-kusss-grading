@@ -267,14 +267,14 @@ class Grader:
         """
         This method is called in ``self.create_grading_file`` before creating the grades with
         ``self._create_grade_row`` and serves as a general processing mechanism. The passed
-         pd.DataFrame can be changed to include more information (columns) per entry/student,
-         or it can be filtered to exclude entries/students that should not be graded. The
-         processed pd.DataFrame is returned.
-
+        pd.DataFrame can be changed to include more information (columns) per entry/student,
+        or it can be filtered to exclude entries/students that should not be graded. The
+        processed pd.DataFrame is returned.
+        
         By default, this method excludes/drops all students without any submission (i.e., all
         NaN for assignments and quizzes), which means that those students will not be graded
         at the end (rather than getting a negative grade).
-
+        
         Subclasses are encouraged to change this behavior, if required.
         
         :param df: The pd.DataFrame that should be processed.
