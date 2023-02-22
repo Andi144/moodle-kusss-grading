@@ -55,10 +55,6 @@ class Grader:
         :param verbose: Whether to print additional output information. Default: True
         """
         self.verbose = verbose
-        if verbose:
-            # TODO: only temp (should be done at the application level, not here, as it should be the user's choice)
-            pd.options.display.max_columns = 100
-            pd.options.display.expand_frame_repr = False
         if cols_to_keep is None:
             cols_to_keep = []
         if ignore_assignment_words is None:
