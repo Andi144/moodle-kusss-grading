@@ -183,7 +183,7 @@ class Grader:
         :param grade_reason_col: The column name of the grading CSV output file that contains
             the reason for the grade (str). Default: "grade_reason"
         :param cols_to_export: The columns to export to the grading CSV output file. Default:
-            [``matr_id_col``, ``study_id_col``, ``grade_col``, ``grade_reason_col``]
+            [``matr_id_col``, ``study_id_col``, ``grade_col``, ``grade_reason_col``, ``grade_reason_col``]
         :param input_encoding: The encoding to use when reading each file specified by
             ``kusss_participants_files``. Default: "ANSI"
         :param output_encoding: The encoding to use when writing ``grading_file``. Default: "utf8"
@@ -248,11 +248,12 @@ class Grader:
         if grading_file is None:
             filename, file_extension = os.path.splitext(kusss_participants_files[0])
             grading_file = filename + "_grading.csv"
-        # default format requirements for KUSSS grading import: "matriculationID;studyID;grade;externalInfo"
-        # in the official KUSSS documentation, only "matriculationID;studyID;grade" is actually mentioned,
-        # but the last column "externalInfo" is also automatically recognized without an explicit header
+        # default CSV format for KUSSS grading import: "matriculationID;studyID;grade;externalInfo;internalInfo"
+        # in the official KUSSS documentation, only "matriculationID;studyID;grade" is actually mentioned, but the last
+        # two columns "externalInfo" and "internalInfo" are also automatically recognized without an explicit header
         if cols_to_export is None:
-            cols_to_export = [matr_id_col, study_id_col, grade_col, grade_reason_col]
+            # use the same reason for both the external and internal info
+            cols_to_export = [matr_id_col, study_id_col, grade_col, grade_reason_col, grade_reason_col]
         export_df = df[cols_to_export].copy()
         export_df.to_csv(grading_file, sep=output_sep, index=False, header=header, encoding=output_encoding)
         self._print(f"KUSSS grading file ({len(df)} grades) written to: '{grading_file}'")
