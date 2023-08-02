@@ -5,7 +5,7 @@ import warnings
 import pandas as pd
 
 
-def create_grade(points, max_points, grading: dict = None) -> pd.Series:
+def create_grade(points, max_points, grading: dict = None, round_ndec: int = 2) -> pd.Series:
     """
     Creates a grade object based on the percentage of achieved points, given the
     absolute ``points`` and the absolute ``max_points``. Which grade is returned
@@ -15,18 +15,20 @@ def create_grade(points, max_points, grading: dict = None) -> pd.Series:
     grade (4) in sequential order, returning the grade that matches first when checking
     whether the percentage of the achieved points is greater or equal than the grading
     percentage, or if nothing matches, the grade 5 ("Nicht genügend"/"Not sufficient")
-    is returned. Example:
+    is returned. The percentage is rounded to ``round_ndec`` decimal places (2 by default)
+    before checking against the grading thresholds. Example:
     
         points = 17
         max_points = 24
         grading = {1: 0.875, 2: 0.75, 3: 0.625, 4: 0.50}
         
         percentage = points / max_points = 17 / 24 = 0.7083333
+        percentage rounded to 2 (default) decimal places = 0.71
         check grades from 1 to 4 and return first that matches with percentage >= grading[i],
         or return 5 if none match:
-            percentage >= grading[1] ---> 0.7083333 >= 0.875 ---> no match, check next
-            percentage >= grading[2] ---> 0.7083333 >= 0.75  ---> no match, check next
-            percentage >= grading[3] ---> 0.7083333 >= 0.625 ---> match, return grade 3
+            percentage >= grading[1] ---> 0.71 >= 0.875 ---> no match, check next
+            percentage >= grading[2] ---> 0.71 >= 0.75  ---> no match, check next
+            percentage >= grading[3] ---> 0.71 >= 0.625 ---> match, return grade 3
     
     The returned object is the one required by ``grader._create_grade_row(row)``, i.e.,
     a pd.Series object with two entries, where the first entry is the grade and the
@@ -42,6 +44,8 @@ def create_grade(points, max_points, grading: dict = None) -> pd.Series:
         to get the respective grades. Specifying an additional key for the grade 5 is
         unnecessary, as this grade is automatically returned if none of the other grades
         match. Default: {1: 0.875, 2: 0.75, 3: 0.625, 4: 0.50}
+    :param round_ndec: The number of decimal places for rounding the calculated percentage.
+        Default: 2
     :return: A pd.Series object where the first entry is the grade (type: np.int64) and
         the second entry the reason (type: str, i.e., pandas object) for this grade.
     """
@@ -51,7 +55,7 @@ def create_grade(points, max_points, grading: dict = None) -> pd.Series:
     #  default value if none of "grading" match, or, raising some exception)
     if grading is None:
         grading = {1: 0.875, 2: 0.75, 3: 0.625, 4: 0.50}
-    total = points / max_points
+    total = round(points / max_points, ndigits=round_ndec)
     if total >= grading[1]:
         return pd.Series([1, ""])
     if total >= grading[2]:
