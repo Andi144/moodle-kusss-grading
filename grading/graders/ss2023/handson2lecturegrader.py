@@ -19,7 +19,8 @@ class HandsOn2LectureGrader(Grader):
         if not np.isnan(e3):
             points = e3
         elif not np.isnan(e2):
-            points = e2
+            # Bonus points since one question/answer covered a topic that was only presented in the exercise (LeakyReLU)
+            points = e2 + 0.625
         else:
             assert not np.isnan(e1)
             points = e1
