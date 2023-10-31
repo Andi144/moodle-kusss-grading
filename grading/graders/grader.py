@@ -10,7 +10,7 @@ from graders import util
 
 MOODLE_DE_TO_EN_FULL = {
     "Vorname": "First name",
-    "Nachname": "Surname",
+    "Nachname": "Last name",
     "ID-Nummer": "ID number",
     "E-Mail-Adresse": "Email address",
     "Zuletzt aus diesem Kurs geladen": "Last downloaded from this course"
@@ -70,7 +70,7 @@ class Grader:
         df = self._to_en(df)
         
         # TODO: parameterize
-        self.id_cols = ["First name", "Surname", "ID number"]
+        self.id_cols = ["First name", "Last name", "ID number"]
         self.assignment_cols = [c for c in df.columns if c.startswith("Assignment:") and
                                 all([w not in c.lower() for w in ignore_assignment_words])]
         self.quiz_cols = [c for c in df.columns if c.startswith("Quiz:") and
