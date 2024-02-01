@@ -7,7 +7,7 @@ def print_counts_by_skz(participant_files: list[str], grading_files: list[str]):
     dfs = [pd.read_csv(pf, sep=";", header=0, names=["id", "skz"]) for pf in participant_files]
     pdf = pd.concat(dfs).drop_duplicates()
     # merge all files and keep last entry in case of duplicates = most recent entry if list is ordered
-    dfs = [pd.read_csv(gf, sep=";", names=["id", "skz", "grade", "reason"]) for gf in grading_files]
+    dfs = [pd.read_csv(gf, sep=";", names=["id", "skz", "grade", "extInfo", "intInfo"]) for gf in grading_files]
     gdf = pd.concat(dfs, ignore_index=True).drop_duplicates(subset=["id", "skz"], keep="last")
 
     print(f"===== Number of registered students (total = {len(pdf)}) grouped by SKZ =====")
