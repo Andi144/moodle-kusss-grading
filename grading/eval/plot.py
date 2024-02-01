@@ -73,13 +73,13 @@ def line_breaking(s: str, line_len: int, max_len: int = None, max_line_breaks: i
 
 def plot_grade_hist(grading_files: list[str], skz: str = None):
     # merge all files and keep last entry in case of duplicates = most recent entry if list is ordered
-    dfs = [pd.read_csv(gf, sep=";", names=["id", "skz", "grade", "reason"]) for gf in grading_files]
+    dfs = [pd.read_csv(gf, sep=";", names=["id", "skz", "grade", "extInfo", "intInfo"]) for gf in grading_files]
     df = pd.concat(dfs, ignore_index=True).drop_duplicates(subset=["id", "skz"], keep="last")
     if skz is not None:
         df = df[df["skz"] == skz]
         if len(df) == 0:
             raise ValueError(f"no entries found for specified SKZ = {skz}")
-    df["reason"] = ": " + df["reason"]  # only adds ": " for non-NaN values
+    df["reason"] = ": " + df["extInfo"]  # only adds ": " for non-NaN values
     df["reason"].fillna("", inplace=True)
     df["grade_detail"] = (df["grade"].astype(str) + df["reason"]).apply(line_breaking, line_len=20, max_line_breaks=2)
     df.sort_values("grade_detail", inplace=True)
