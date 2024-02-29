@@ -17,7 +17,8 @@ class Python1LectureGrader(Grader):
         if not np.isnan(e3):
             points = e3
         elif not np.isnan(e2):
-            points = e2
+            # +(2.5 / 3) points due to misleading answer in one question
+            points = e2 + (2.5 / 3)
         else:
             assert not np.isnan(e1)
             # +(2.5 / 3) points due to misleading answer in one question
