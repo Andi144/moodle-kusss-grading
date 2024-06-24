@@ -1,6 +1,7 @@
 import argparse
 import re
 import warnings
+from decimal import Decimal, ROUND_UP
 
 import pandas as pd
 
@@ -55,7 +56,8 @@ def create_grade(points, max_points, grading: dict = None, round_ndec: int = 2) 
     #  default value if none of "grading" match, or, raising some exception)
     if grading is None:
         grading = {1: 0.875, 2: 0.75, 3: 0.625, 4: 0.50}
-    total = round(points / max_points, ndigits=round_ndec)
+    total = Decimal(points) / max_points
+    total = total.quantize(Decimal(".01"), rounding=ROUND_UP)
     if total >= grading[1]:
         return pd.Series([1, ""])
     if total >= grading[2]:
